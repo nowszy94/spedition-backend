@@ -25,9 +25,9 @@ export const contractors: Contractor[] = [
     contacts: [
       {
         id: 'eb5da80b-8176-495d-9c23-d6557c49417f',
-        name: 'Krzysztof Kowalski',
-        email: 'krzysztof.kowalski@gmail.com',
-        phoneNumber: '593 222 591',
+        name: 'Jan Nowak',
+        email: 'jan.nowak@gmail.com',
+        phoneNumber: '593 333 591',
       },
     ],
   },
