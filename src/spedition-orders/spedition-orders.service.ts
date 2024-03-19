@@ -29,14 +29,18 @@ export class SpeditionOrdersService {
     );
 
     const contractor: SpeditionOrder['contractor'] = {
-      id: foundContractor.id,
-      name: foundContractor.name,
+      ...foundContractor,
       contact: foundContact,
     };
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       createSpeditionOrderDto,
-      { id: '1', name: 'Dominik Kasprzak' },
+      {
+        id: '1',
+        name: 'Dominik Kasprzak',
+        email: 'd.kasprzak@rajkotransport.eu',
+        phoneNumber: '+48 451-683-803',
+      },
       contractor,
       this.createNewOrderId(),
     );
@@ -61,17 +65,44 @@ export class SpeditionOrdersService {
     id: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
   ): SpeditionOrder {
+    const contractor = this.contractorService.findOne(
+      updateSpeditionOrderDto.contractor.id,
+    );
+
+    const selectedContact = contractor.contacts.find(
+      (contact) => contact.id === updateSpeditionOrderDto.contractor.contactId,
+    );
+
+    const updatedSpeditionOrder: SpeditionOrder = {
+      ...updateSpeditionOrderDto,
+      creator: {
+        id: '1',
+        name: 'Dominik Kasprzak',
+        email: 'd.kasprzak@rajkotransport.eu',
+        phoneNumber: '+48 451-683-803',
+      },
+      contractor: {
+        id: contractor.id,
+        name: contractor.name,
+        email: contractor.email,
+        address: contractor.address,
+        phoneNumber: contractor.phoneNumber,
+        nip: contractor.nip,
+        contact: selectedContact,
+      },
+    };
+
     this.speditionOrders = this.speditionOrders.map(
       (speditionOrder): SpeditionOrder => {
         if (speditionOrder.id === id && speditionOrder.status !== 'REMOVED') {
-          return updateSpeditionOrderDto;
+          return updatedSpeditionOrder;
         }
 
         return speditionOrder;
       },
     );
 
-    return updateSpeditionOrderDto;
+    return updatedSpeditionOrder;
   }
 
   remove(id: string) {

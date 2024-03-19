@@ -1,4 +1,4 @@
-import { SpedtionOrderStatus } from '../entities/spedition-order.entity';
+import { SpeditionOrderStatus } from '../entities/spedition-order.entity';
 
 export type UpdateSpeditionOrderDto = {
   id: string;
@@ -6,17 +6,10 @@ export type UpdateSpeditionOrderDto = {
   creationDate: number;
   creator: {
     id: string;
-    name: string;
   };
   contractor: {
     id: string;
-    name: string;
-    contact: {
-      id: string;
-      name: string;
-      phoneNumber: string;
-      email: string;
-    };
+    contactId: string;
   };
   driver: {
     name: string;
@@ -44,6 +37,6 @@ export type UpdateSpeditionOrderDto = {
     vatRate: number;
     currency: 'EUR' | 'PLN';
   };
-  status: SpedtionOrderStatus;
+  status: SpeditionOrderStatus;
   additionalInfo: string;
 };

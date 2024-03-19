@@ -1,4 +1,4 @@
-export type SpedtionOrderStatus =
+export type SpeditionOrderStatus =
   | 'DRAFT'
   | 'INPROGRESS'
   | 'DONE'
@@ -11,10 +11,16 @@ export interface SpeditionOrder {
   creator: {
     id: string;
     name: string;
+    email: string;
+    phoneNumber: string;
   };
   contractor: {
     id: string;
     name: string;
+    nip: string;
+    address: string;
+    phoneNumber: string;
+    email: string;
     contact?: {
       id: string;
       name: string;
@@ -48,6 +54,6 @@ export interface SpeditionOrder {
     vatRate: number;
     currency: 'EUR' | 'PLN';
   };
-  status: SpedtionOrderStatus;
+  status: SpeditionOrderStatus;
   additionalInfo: string;
 }

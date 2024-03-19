@@ -4,8 +4,10 @@ import { Contractor } from '../entities/contractor.entity';
 
 export class CreateContractorDto {
   name: string;
+  nip: string;
   phoneNumber: string;
   email: string;
+  address: string;
   additionalInfo: string;
   contacts: Array<{
     name: string;
