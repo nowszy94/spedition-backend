@@ -29,8 +29,18 @@ export class SpeditionOrdersService {
     );
 
     const contractor: SpeditionOrder['contractor'] = {
-      ...foundContractor,
-      contact: foundContact,
+      id: foundContractor.id,
+      name: foundContractor.name,
+      address: foundContractor.address,
+      email: foundContractor.email,
+      phoneNumber: foundContractor.phoneNumber,
+      nip: foundContractor.phoneNumber,
+      contact: {
+        id: foundContact.id,
+        name: foundContact.name,
+        email: foundContact.email,
+        phoneNumber: foundContact.phoneNumber,
+      },
     };
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
@@ -64,24 +74,41 @@ export class SpeditionOrdersService {
   update(
     id: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
-  ): SpeditionOrder {
-    const contractor = this.contractorService.findOne(
-      updateSpeditionOrderDto.contractor.id,
+  ): SpeditionOrder | null {
+    const foundSpeditionOrder = this.speditionOrders.find(
+      (speditionOrder) => speditionOrder.id === id,
     );
 
-    const selectedContact = contractor.contacts.find(
+    if (!foundSpeditionOrder) {
+      return null;
+    }
+
+    const contractor = this.contractorService.findOne(
+      updateSpeditionOrderDto.contractor?.id,
+    );
+
+    const selectedContact = contractor?.contacts.find(
       (contact) => contact.id === updateSpeditionOrderDto.contractor.contactId,
     );
 
     const updatedSpeditionOrder: SpeditionOrder = {
-      ...updateSpeditionOrderDto,
+      id: foundSpeditionOrder.id,
+      orderId: foundSpeditionOrder.orderId,
+      creationDate: foundSpeditionOrder.creationDate,
+      status: foundSpeditionOrder.status,
+      loading: updateSpeditionOrderDto.loading,
+      unloading: updateSpeditionOrderDto.unloading,
+      freight: updateSpeditionOrderDto.freight,
+      driver: updateSpeditionOrderDto.driver,
+      vehicle: updateSpeditionOrderDto.vehicle,
+      additionalInfo: updateSpeditionOrderDto.additionalInfo,
       creator: {
         id: '1',
         name: 'Dominik Kasprzak',
         email: 'd.kasprzak@rajkotransport.eu',
         phoneNumber: '+48 451-683-803',
       },
-      contractor: {
+      contractor: contractor && {
         id: contractor.id,
         name: contractor.name,
         email: contractor.email,

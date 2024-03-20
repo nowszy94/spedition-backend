@@ -14,7 +14,7 @@ export interface SpeditionOrder {
     email: string;
     phoneNumber: string;
   };
-  contractor: {
+  contractor?: {
     id: string;
     name: string;
     nip: string;
