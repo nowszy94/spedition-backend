@@ -18,17 +18,11 @@ export class SpeditionOrdersService {
       createSpeditionOrderDto.contractor.id,
     );
 
-    if (!foundContractor) {
-      throw new Error(
-        `No contractor found for ${createSpeditionOrderDto.contractor.id}`,
-      );
-    }
-
-    const foundContact = foundContractor.contacts.find(
+    const foundContact = foundContractor?.contacts.find(
       (contact) => contact.id === createSpeditionOrderDto.contractor.contactId,
     );
 
-    const contractor: SpeditionOrder['contractor'] = {
+    const contractor: SpeditionOrder['contractor'] = foundContractor && {
       id: foundContractor.id,
       name: foundContractor.name,
       address: foundContractor.address,

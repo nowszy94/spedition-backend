@@ -35,6 +35,7 @@ export class CreateSpeditionOrderDto {
     value: string;
     vatRate: number;
     currency: 'EUR' | 'PLN';
+    paymentDays: number;
   };
   additionalInfo: string;
 

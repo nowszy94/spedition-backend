@@ -36,6 +36,7 @@ export type UpdateSpeditionOrderDto = {
     value: string;
     vatRate: number;
     currency: 'EUR' | 'PLN';
+    paymentDays: number;
   };
   status: SpeditionOrderStatus;
   additionalInfo: string;
