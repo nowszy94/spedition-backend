@@ -29,7 +29,7 @@ export class SpeditionOrdersService {
       email: foundContractor.email,
       phoneNumber: foundContractor.phoneNumber,
       nip: foundContractor.phoneNumber,
-      contact: {
+      contact: foundContact && {
         id: foundContact.id,
         name: foundContact.name,
         email: foundContact.email,
@@ -92,6 +92,7 @@ export class SpeditionOrdersService {
       status: foundSpeditionOrder.status,
       loading: updateSpeditionOrderDto.loading,
       unloading: updateSpeditionOrderDto.unloading,
+      loadDetails: updateSpeditionOrderDto.loadDetails,
       freight: updateSpeditionOrderDto.freight,
       driver: updateSpeditionOrderDto.driver,
       vehicle: updateSpeditionOrderDto.vehicle,

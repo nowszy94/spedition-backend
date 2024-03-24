@@ -31,6 +31,10 @@ export class CreateSpeditionOrderDto {
     unloadingNumber: string;
     additionalInfo: string;
   };
+  loadDetails: Array<{
+    name: string;
+    value: string;
+  }>;
   freight: {
     value: string;
     vatRate: number;
@@ -54,6 +58,7 @@ export class CreateSpeditionOrderDto {
     driver: dto.driver,
     vehicle: dto.vehicle,
     loading: dto.loading,
+    loadDetails: dto.loadDetails,
     unloading: dto.unloading,
     freight: dto.freight,
     additionalInfo: dto.additionalInfo,

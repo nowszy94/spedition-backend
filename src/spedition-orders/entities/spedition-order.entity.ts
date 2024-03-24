@@ -49,6 +49,10 @@ export interface SpeditionOrder {
     unloadingNumber: string;
     additionalInfo: string;
   };
+  loadDetails: Array<{
+    name: string;
+    value: string;
+  }>;
   freight: {
     value: string;
     vatRate: number;

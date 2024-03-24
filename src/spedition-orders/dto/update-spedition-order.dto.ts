@@ -32,6 +32,10 @@ export type UpdateSpeditionOrderDto = {
     unloadingNumber: string;
     additionalInfo: string;
   };
+  loadDetails: Array<{
+    name: string;
+    value: string;
+  }>;
   freight: {
     value: string;
     vatRate: number;
