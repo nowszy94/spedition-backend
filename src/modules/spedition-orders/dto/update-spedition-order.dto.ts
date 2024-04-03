@@ -3,6 +3,7 @@ import { SpeditionOrderStatus } from '../entities/spedition-order.entity';
 export type UpdateSpeditionOrderDto = {
   id: string;
   orderId: string;
+  companyId: string;
   creationDate: number;
   creator: {
     id: string;

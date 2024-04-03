@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ContractorsService } from './contractors/contractors.service';
-import { ContractorsController } from './contractors/contractors.controller';
-import { SpeditionOrdersService } from './spedition-orders/spedition-orders.service';
-import { SpeditionOrdersController } from './spedition-orders/spedition-orders.controller';
-import { SettingsController } from './settings/settings.controller';
+import { ContractorsService } from './modules/contractors/contractors.service';
+import { ContractorsController } from './modules/contractors/contractors.controller';
+import { SpeditionOrdersService } from './modules/spedition-orders/spedition-orders.service';
+import { SpeditionOrdersController } from './modules/spedition-orders/spedition-orders.controller';
+import { SettingsController } from './modules/settings/settings.controller';
 
 @Module({
   imports: [],

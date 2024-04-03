@@ -1,5 +1,6 @@
 export class Contractor {
   id: string;
+  companyId: string;
   name: string;
   nip: string;
   phoneNumber: string;

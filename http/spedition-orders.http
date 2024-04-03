@@ -1,0 +1,50 @@
+### Create spedition-order
+POST localhost/spedition-orders
+Content-Type: application/json
+
+{
+  "creator": {
+    "id": "1"
+  },
+  "contractor": {
+    "id": "01HTJT72FD3WWH72X7ZAHW3P31",
+    "contactId": "01HTJT72FE1FF71PZXWP4GF64Q"
+  },
+  "driver": {
+    "name": "Jan Kowalski",
+    "phoneNumber": "798 558 648",
+    "identityCardNumber": "AVC 112TE5"
+  },
+  "vehicle": {
+    "carLicensePlate": "PZ 535CD",
+    "trailerLicensePlate": "WX 556AV"
+  },
+  "loading": {
+    "date": 1707346800000,
+    "address": "Seaking Poland Ltd Sp. z o.o., ul.Nowa 1B, 64-700 Czarnkow, PL",
+    "loadingNumber": "9qwer",
+    "additionalInfo": "Dodatkowe informacje dotyczace zaladunku"
+  },
+  "unloading": {
+    "date": 1707692400000,
+    "address":
+    "I.SEAKING FRANCE S.A.R.L C/O IDEA LOGISTIQUE ,LOGISTICTIPORT, 4 RUE JEAN-BAPTISTE MARCET BATIMENT C, 44570 TRIGNAC, FR",
+    "unloadingNumber": "abc44",
+    "additionalInfo": "Dodatkowe informacje dotyczace rozaladunku"
+  },
+  "loadDetails": [],
+  "freight": {
+    "value": "3500",
+    "currency": "PLN",
+    "vatRate": 23,
+    "paymentDays": 45
+  },
+  "additionalInfo": "Dodatkowe informacje o zleceniu"
+}
+
+### All spedition orders
+GET localhost/spedition-orders
+
+
+### Some spedition order
+GET localhost/spedition-orders/01HTJTK8VB3WVAYFDA2AVR4FCD

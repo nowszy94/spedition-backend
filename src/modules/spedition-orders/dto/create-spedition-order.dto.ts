@@ -1,12 +1,12 @@
-import { v4 as uuidv4 } from 'uuid';
-
+import { ulid } from 'ulid';
 import { SpeditionOrder } from '../entities/spedition-order.entity';
 
 export class CreateSpeditionOrderDto {
+  companyId: string;
   creator: {
     id: string;
   };
-  contractor: {
+  contractor?: {
     id: string;
     contactId: string;
   };
@@ -49,12 +49,13 @@ export class CreateSpeditionOrderDto {
     contractor: SpeditionOrder['contractor'],
     orderId: string,
   ): SpeditionOrder => ({
-    id: uuidv4(),
+    id: ulid(),
     orderId,
     creationDate: new Date().getTime(),
     status: 'DRAFT',
     creator,
     contractor,
+    companyId: dto.companyId,
     driver: dto.driver,
     vehicle: dto.vehicle,
     loading: dto.loading,

@@ -1,10 +1,12 @@
-import { Contractor } from './entities/contractor.entity';
+import { Contractor } from '../modules/contractors/entities/contractor.entity';
+import { COMPANY_ID } from '../const';
 
-export const contractors: Contractor[] = [
+export const mockContractors: Contractor[] = [
   {
     id: '1319e962-eaef-4108-bea5-2e615c7c11b9',
+    companyId: COMPANY_ID,
     name: 'Rajko Sp. j. Ewa Kosicka Kazimierz Rajewski',
-    nip: '123456234',
+    nip: '123456936',
     phoneNumber: '+48 504 319 606',
     email: 'rajkosped@gmail.com',
     address: 'Milkowo 47a, 64-720 Lubasz, PL',
@@ -20,6 +22,7 @@ export const contractors: Contractor[] = [
   },
   {
     id: 'a685034d-0b0f-4dab-b94e-573ee6955521',
+    companyId: COMPANY_ID,
     name: 'Krystian Balicki G-B. Transport',
     phoneNumber: '+48 123 456 789',
     email: 'example@gmail.com',

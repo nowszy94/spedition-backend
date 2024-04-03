@@ -1,5 +1,47 @@
+### Create contractor #1
+POST localhost/contractors
+Content-Type: application/json
+
+{
+  "name": "Rajko Sp. j. Ewa Kosicka Kazimierz Rajewski",
+  "nip": "123456936",
+  "phoneNumber": "+48 504 319 606",
+  "email": "rajkosped@gmail.com",
+  "address": "Milkowo 47a, 64-720 Lubasz, PL",
+  "additionalInfo": "",
+  "contacts": [
+    {
+      "id": "eb5da80b-8176-495d-9c23-d6557c49417f",
+      "name": "Krzysztof Kowalski",
+      "email": "krzysztof.kowalski@gmail.com",
+      "phoneNumber": "593 333 591"
+    }
+  ]
+}
+
+### Create contractor #2
+POST localhost/contractors
+Content-Type: application/json
+
+{
+  "name": "Krystian Balicki G-B. Transport",
+  "phoneNumber": "+48 123 456 789",
+  "email": "example@gmail.com",
+  "address": "Brzezinska 38, 64-700 Czarnkow, PL",
+  "nip": "123456234",
+  "additionalInfo": "",
+  "contacts": [
+    {
+      "id": "eb5da80b-8176-495d-9c23-d6557c49417f",
+      "name": "Jan Nowak",
+      "email": "jan.nowak@gmail.com",
+      "phoneNumber": "593 333 591"
+    }
+  ]
+}
+
 ### All contractors
-GET localhost:3001/contractors
+GET localhost/contractors
 
 ### Some contractor
-GET localhost:3001/contractors/a685034d-0b0f-4dab-b94e-573ee6955521
+GET localhost/contractors/01HTJT72FD3WWH72X7ZAHW3P31

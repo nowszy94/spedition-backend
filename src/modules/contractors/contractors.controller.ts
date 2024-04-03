@@ -10,6 +10,7 @@ import {
 import { ContractorsService } from './contractors.service';
 import { CreateContractorDto } from './dto/create-contractor.dto';
 import { UpdateContractorDto } from './dto/update-contractor.dto';
+import { COMPANY_ID } from '../../const';
 
 @Controller('contractors')
 export class ContractorsController {
@@ -17,7 +18,10 @@ export class ContractorsController {
 
   @Post()
   create(@Body() createContractorDto: CreateContractorDto) {
-    return this.contractorsService.create(createContractorDto);
+    return this.contractorsService.create({
+      ...createContractorDto,
+      companyId: COMPANY_ID,
+    });
   }
 
   @Get()
@@ -35,7 +39,10 @@ export class ContractorsController {
     @Param('id') id: string,
     @Body() updateContractorDto: UpdateContractorDto,
   ) {
-    return this.contractorsService.update(id, updateContractorDto);
+    return this.contractorsService.update(id, {
+      ...updateContractorDto,
+      companyId: COMPANY_ID,
+    });
   }
 
   @Delete(':id')

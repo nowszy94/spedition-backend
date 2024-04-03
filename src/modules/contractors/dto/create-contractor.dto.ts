@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
-
+import { ulid } from 'ulid';
 import { Contractor } from '../entities/contractor.entity';
 
 export class CreateContractorDto {
+  companyId: string;
   name: string;
   nip: string;
   phoneNumber: string;
@@ -17,10 +17,10 @@ export class CreateContractorDto {
 
   static toNewEntity = (dto: CreateContractorDto): Contractor => ({
     ...dto,
-    id: uuidv4(),
+    id: ulid(),
     contacts: dto.contacts.map((dtoContact) => ({
       ...dtoContact,
-      id: uuidv4(),
+      id: ulid(),
     })),
   });
 }

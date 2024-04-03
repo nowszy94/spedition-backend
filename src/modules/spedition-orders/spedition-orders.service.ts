@@ -1,20 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
-import { speditionOrders as speditionOrdersData } from './spedition-orders-mock-data';
 import { SpeditionOrder } from './entities/spedition-order.entity';
 import { ContractorsService } from '../contractors/contractors.service';
+import { SpeditionOrdersRepository } from './spedition-orders.repository';
+import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
+import { COMPANY_ID } from '../../const';
 
 @Injectable()
 export class SpeditionOrdersService {
-  private speditionOrders: SpeditionOrder[];
+  private readonly speditionOrderRepository: SpeditionOrdersRepository;
 
   constructor(private readonly contractorService: ContractorsService) {
-    this.speditionOrders = speditionOrdersData;
+    this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
   }
 
-  create(createSpeditionOrderDto: CreateSpeditionOrderDto) {
-    const foundContractor = this.contractorService.findOne(
+  findAll() {
+    return this.speditionOrderRepository.findAllSpeditionOrders(COMPANY_ID);
+  }
+
+  async create(createSpeditionOrderDto: CreateSpeditionOrderDto) {
+    const foundContractor = await this.contractorService.findOne(
       createSpeditionOrderDto.contractor.id,
     );
 
@@ -36,6 +42,7 @@ export class SpeditionOrdersService {
         phoneNumber: foundContact.phoneNumber,
       },
     };
+    const newOrderId = await this.createNewOrderId();
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       createSpeditionOrderDto,
@@ -46,38 +53,36 @@ export class SpeditionOrdersService {
         phoneNumber: '+48 451-683-803',
       },
       contractor,
-      this.createNewOrderId(),
+      newOrderId,
     );
 
-    this.speditionOrders.push(newSpeditionOrder);
+    await this.speditionOrderRepository.createSpeditionOrder(newSpeditionOrder);
 
     return newSpeditionOrder;
   }
 
-  findAll() {
-    return this.speditionOrders.filter(({ status }) => status !== 'REMOVED');
-  }
-
-  findOne(id: string) {
-    return this.speditionOrders.find(
-      (speditionOrder) =>
-        speditionOrder.id === id && speditionOrder.status !== 'REMOVED',
+  async findOne(id: string) {
+    return await this.speditionOrderRepository.findSpeditionOrderById(
+      COMPANY_ID,
+      id,
     );
   }
 
-  update(
+  async update(
     id: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
-  ): SpeditionOrder | null {
-    const foundSpeditionOrder = this.speditionOrders.find(
-      (speditionOrder) => speditionOrder.id === id,
-    );
+  ): Promise<SpeditionOrder | null> {
+    const foundSpeditionOrder =
+      await this.speditionOrderRepository.findSpeditionOrderById(
+        updateSpeditionOrderDto.companyId,
+        id,
+      );
 
     if (!foundSpeditionOrder) {
       return null;
     }
 
-    const contractor = this.contractorService.findOne(
+    const contractor = await this.contractorService.findOne(
       updateSpeditionOrderDto.contractor?.id,
     );
 
@@ -88,6 +93,7 @@ export class SpeditionOrdersService {
     const updatedSpeditionOrder: SpeditionOrder = {
       id: foundSpeditionOrder.id,
       orderId: foundSpeditionOrder.orderId,
+      companyId: foundSpeditionOrder.companyId,
       creationDate: foundSpeditionOrder.creationDate,
       status: foundSpeditionOrder.status,
       loading: updateSpeditionOrderDto.loading,
@@ -114,32 +120,18 @@ export class SpeditionOrdersService {
       },
     };
 
-    this.speditionOrders = this.speditionOrders.map(
-      (speditionOrder): SpeditionOrder => {
-        if (speditionOrder.id === id && speditionOrder.status !== 'REMOVED') {
-          return updatedSpeditionOrder;
-        }
-
-        return speditionOrder;
-      },
+    await this.speditionOrderRepository.updateSpeditionOrder(
+      updatedSpeditionOrder,
     );
 
     return updatedSpeditionOrder;
   }
 
-  remove(id: string) {
-    this.speditionOrders = this.speditionOrders.map((item) => {
-      if (item.id === id) {
-        return {
-          ...item,
-          status: 'REMOVED',
-        };
-      }
-      return item;
-    });
+  async remove(id: string) {
+    await this.speditionOrderRepository.deleteSpeditionOrder(COMPANY_ID, id);
   }
 
-  private createNewOrderId(): string {
+  private async createNewOrderId(): Promise<string> {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
@@ -147,7 +139,10 @@ export class SpeditionOrdersService {
     const startOfCurrentMonth = new Date(currentYear, currentMonth, 1);
     const startOfCurrentMonthTime = startOfCurrentMonth.getTime();
 
-    const thisMonthOrders = this.speditionOrders.filter(
+    const orders =
+      await this.speditionOrderRepository.findAllSpeditionOrders(COMPANY_ID);
+
+    const thisMonthOrders = orders.filter(
       ({ creationDate }) => startOfCurrentMonthTime <= creationDate,
     );
 

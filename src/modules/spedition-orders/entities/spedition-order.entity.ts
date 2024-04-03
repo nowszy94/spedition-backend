@@ -7,6 +7,7 @@ export type SpeditionOrderStatus =
 export interface SpeditionOrder {
   id: string;
   orderId: string;
+  companyId: string;
   creationDate: number;
   creator: {
     id: string;

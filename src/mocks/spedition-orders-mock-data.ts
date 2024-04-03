@@ -1,9 +1,11 @@
-import { SpeditionOrder } from './entities/spedition-order.entity';
+import { SpeditionOrder } from '../modules/spedition-orders/entities/spedition-order.entity';
+import { COMPANY_ID } from '../const';
 
 export const speditionOrders: SpeditionOrder[] = [
   {
     id: '3b71749f-13f4-4992-8b61-0fdc07df180f',
     orderId: '1/02/2024',
+    companyId: COMPANY_ID,
     creationDate: new Date(2024, 1, 5).getTime(),
     creator: {
       id: '1',
@@ -60,6 +62,7 @@ export const speditionOrders: SpeditionOrder[] = [
   {
     id: 'b644e99f-d577-4e9c-969e-69e3a3333a39',
     orderId: '2/02/2024',
+    companyId: COMPANY_ID,
     creationDate: new Date(2024, 1, 12).getTime(),
     creator: {
       id: '1',
@@ -116,6 +119,7 @@ export const speditionOrders: SpeditionOrder[] = [
   {
     id: '526c4f19-882c-47fa-a0cc-eda2a50d3292',
     orderId: '3/02/2024',
+    companyId: COMPANY_ID,
     creationDate: new Date(2024, 1, 12).getTime(),
     creator: {
       id: '2',
@@ -173,6 +177,7 @@ export const speditionOrders: SpeditionOrder[] = [
   {
     id: '18ddac09-1167-49fd-a02a-b5ca21745548',
     orderId: '1/03/2024',
+    companyId: COMPANY_ID,
     creationDate: new Date(2024, 2, 2).getTime(),
     creator: {
       id: '2',
