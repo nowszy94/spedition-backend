@@ -4,15 +4,15 @@ import { ContractorsRepository } from '../../../modules/contractors/contractors-
 import { Contractor } from '../../../modules/contractors/entities/contractor.entity';
 import { DynamoDBContractorDto } from './contractor.dto';
 
-const DYNAMODB_TABLE_NAME = 'RabbitSpeditionDynamoTable';
+const DYNAMODB_TABLE_NAME = 'SpeditionInfrastructureStackDynamoTable';
 
 export class DynamoDBContractorsRepository implements ContractorsRepository {
   private readonly dynamoDB: DynamoDB;
-  private readonly tableName = DYNAMODB_TABLE_NAME;
+  private readonly tableName = process.env.databaseTable || DYNAMODB_TABLE_NAME;
 
   constructor() {
     this.dynamoDB = new DynamoDB({
-      region: 'eu-central-1',
+      region: process.env.region || 'eu-central-1',
     });
   }
 

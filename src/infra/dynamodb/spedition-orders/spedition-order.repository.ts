@@ -4,17 +4,17 @@ import { SpeditionOrdersRepository } from '../../../modules/spedition-orders/spe
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderDto } from './spedition-order.dto';
 
-const DYNAMODB_TABLE_NAME = 'RabbitSpeditionDynamoTable';
+const DYNAMODB_TABLE_NAME = 'SpeditionInfrastructureStackDynamoTable';
 
 export class DynamoDBSpeditionOrderRepository
   implements SpeditionOrdersRepository
 {
   private readonly dynamoDB: DynamoDB;
-  private readonly tableName = DYNAMODB_TABLE_NAME;
+  private readonly tableName = process.env.databaseTable || DYNAMODB_TABLE_NAME;
 
   constructor() {
     this.dynamoDB = new DynamoDB({
-      region: 'eu-central-1',
+      region: process.env.region || 'eu-central-1',
     });
   }
 
