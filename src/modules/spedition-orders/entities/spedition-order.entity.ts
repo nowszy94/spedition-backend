@@ -1,9 +1,11 @@
 export type SpeditionOrderStatus =
   | 'DRAFT'
-  | 'INPROGRESS'
+  | 'CREATED'
+  | 'LOADED'
+  | 'UNLOADED'
   | 'DONE'
-  | 'STORNO'
-  | 'REMOVED';
+  | 'STORNO';
+
 export interface SpeditionOrder {
   id: string;
   orderId: string;

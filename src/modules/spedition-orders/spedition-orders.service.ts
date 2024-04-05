@@ -5,78 +5,110 @@ import { SpeditionOrder } from './entities/spedition-order.entity';
 import { ContractorsService } from '../contractors/contractors.service';
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
-import { COMPANY_ID } from '../../const';
+import { PatchSpeditionOrderDto } from './dto/patch-spedition-order.dto';
+import { NewOrderIdService } from './new-order-id.service';
+import { SpeditionOrderStatusService } from './spedition-order-status.service';
 
 @Injectable()
 export class SpeditionOrdersService {
   private readonly speditionOrderRepository: SpeditionOrdersRepository;
 
-  constructor(private readonly contractorService: ContractorsService) {
+  constructor(
+    private readonly contractorService: ContractorsService,
+    private readonly speditionOrderStatusService: SpeditionOrderStatusService,
+    private readonly newOrderIdService: NewOrderIdService,
+  ) {
     this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
   }
 
-  findAll() {
-    return this.speditionOrderRepository.findAllSpeditionOrders(COMPANY_ID);
+  findAll(companyId: string) {
+    return this.speditionOrderRepository.findAllSpeditionOrders(companyId);
   }
 
-  async create(createSpeditionOrderDto: CreateSpeditionOrderDto) {
-    const foundContractor = await this.contractorService.findOne(
-      createSpeditionOrderDto.contractor.id,
-    );
+  async createDraftSpeditionOrder(
+    companyId: string,
+    createSpeditionOrderDto: CreateSpeditionOrderDto,
+  ): Promise<SpeditionOrder> {
+    const contractorFromDto = createSpeditionOrderDto.contractor;
 
-    const foundContact = foundContractor?.contacts.find(
-      (contact) => contact.id === createSpeditionOrderDto.contractor.contactId,
-    );
-
-    const contractor: SpeditionOrder['contractor'] = foundContractor && {
-      id: foundContractor.id,
-      name: foundContractor.name,
-      address: foundContractor.address,
-      email: foundContractor.email,
-      phoneNumber: foundContractor.phoneNumber,
-      nip: foundContractor.phoneNumber,
-      contact: foundContact && {
-        id: foundContact.id,
-        name: foundContact.name,
-        email: foundContact.email,
-        phoneNumber: foundContact.phoneNumber,
-      },
-    };
-    const newOrderId = await this.createNewOrderId();
+    const contractor: SpeditionOrder['contractor'] | undefined =
+      contractorFromDto
+        ? await this.getContractorForOrder(
+            contractorFromDto.id,
+            contractorFromDto.contactId,
+          )
+        : undefined;
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
+      companyId,
       createSpeditionOrderDto,
       {
         id: '1',
         name: 'Dominik Kasprzak',
         email: 'd.kasprzak@rajkotransport.eu',
         phoneNumber: '+48 451-683-803',
-      },
+      }, // TODO fetch creator based on speditionOrder.creator.id
       contractor,
-      newOrderId,
     );
 
-    await this.speditionOrderRepository.createSpeditionOrder(newSpeditionOrder);
+    await this.speditionOrderRepository.createSpeditionOrder({
+      ...newSpeditionOrder,
+      status: 'DRAFT',
+    });
 
     return newSpeditionOrder;
   }
 
-  async findOne(id: string) {
+  async createActiveSpeditionOrder(
+    companyId: string,
+    createSpeditionOrderDto: CreateSpeditionOrderDto,
+  ) {
+    const contractorFromDto = createSpeditionOrderDto.contractor;
+
+    const contractor: SpeditionOrder['contractor'] | undefined =
+      contractorFromDto
+        ? await this.getContractorForOrder(
+            contractorFromDto.id,
+            contractorFromDto.contactId,
+          )
+        : undefined;
+    const newOrderId = await this.newOrderIdService.createNewOrderId(companyId);
+
+    const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
+      companyId,
+      createSpeditionOrderDto,
+      {
+        id: '1',
+        name: 'Dominik Kasprzak',
+        email: 'd.kasprzak@rajkotransport.eu',
+        phoneNumber: '+48 451-683-803',
+      }, // TODO fetch creator based on speditionOrder.creator.id
+      contractor,
+      newOrderId,
+    );
+
+    await this.speditionOrderRepository.createSpeditionOrder({
+      ...newSpeditionOrder,
+      status: 'CREATED',
+    });
+
+    return newSpeditionOrder;
+  }
+
+  async findOne(id: string, companyId: string) {
     return await this.speditionOrderRepository.findSpeditionOrderById(
-      COMPANY_ID,
+      companyId,
       id,
     );
   }
 
   async update(
     id: string,
+    companyId: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
   ): Promise<SpeditionOrder | null> {
     const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        updateSpeditionOrderDto.companyId,
-        id,
-      );
+      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
 
     if (!foundSpeditionOrder) {
       return null;
@@ -127,31 +159,68 @@ export class SpeditionOrdersService {
     return updatedSpeditionOrder;
   }
 
-  async remove(id: string) {
-    await this.speditionOrderRepository.deleteSpeditionOrder(COMPANY_ID, id);
-  }
+  async changeStatus(
+    id: string,
+    companyId: string,
+    newStatus: PatchSpeditionOrderDto['status'],
+  ): Promise<SpeditionOrder | null> {
+    const foundSpeditionOrder =
+      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
 
-  private async createNewOrderId(): Promise<string> {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+    if (!foundSpeditionOrder) {
+      return null;
+    }
 
-    const startOfCurrentMonth = new Date(currentYear, currentMonth, 1);
-    const startOfCurrentMonthTime = startOfCurrentMonth.getTime();
+    const updatedSpeditionOrder =
+      await this.speditionOrderStatusService.handleStatusChange(
+        foundSpeditionOrder,
+        newStatus,
+      );
 
-    const orders =
-      await this.speditionOrderRepository.findAllSpeditionOrders(COMPANY_ID);
-
-    const thisMonthOrders = orders.filter(
-      ({ creationDate }) => startOfCurrentMonthTime <= creationDate,
+    await this.speditionOrderRepository.updateSpeditionOrder(
+      updatedSpeditionOrder,
     );
 
-    const nextOrderId = thisMonthOrders.length + 1;
-
-    const normalCurrentMonth = currentMonth + 1;
-    const preparedMonth =
-      normalCurrentMonth >= 10 ? normalCurrentMonth : `0${normalCurrentMonth}`;
-
-    return `${nextOrderId}/${preparedMonth}/${currentYear}`;
+    return updatedSpeditionOrder;
   }
+
+  async remove(id: string, companyId: string) {
+    await this.speditionOrderRepository.deleteSpeditionOrder(companyId, id);
+  }
+
+  private getContractorForOrder = async (
+    contractorId: string,
+    contactId?: string,
+  ): Promise<SpeditionOrder['contractor']> => {
+    const foundContractor = await this.contractorService.findOne(contractorId);
+
+    if (!foundContractor) {
+      throw new Error(`Contractor for ${contractorId} not found `);
+    }
+
+    const foundContact = foundContractor.contacts.find(
+      (contact) => contact.id === contactId,
+    );
+
+    if (contactId && !foundContact) {
+      throw new Error(
+        `Contact(id: ${contactId}) for contractor ${contractorId} not found`,
+      );
+    }
+
+    return {
+      id: foundContractor.id,
+      name: foundContractor.name,
+      address: foundContractor.address,
+      email: foundContractor.email,
+      phoneNumber: foundContractor.phoneNumber,
+      nip: foundContractor.phoneNumber,
+      contact: foundContact && {
+        id: foundContact.id,
+        name: foundContact.name,
+        email: foundContact.email,
+        phoneNumber: foundContact.phoneNumber,
+      },
+    };
+  };
 }

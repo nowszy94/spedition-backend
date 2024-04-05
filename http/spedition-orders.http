@@ -1,5 +1,5 @@
 ### Create spedition-order
-POST localhost/spedition-orders
+POST localhost/spedition-orders?status=DRAFT
 Content-Type: application/json
 
 {
@@ -7,8 +7,8 @@ Content-Type: application/json
     "id": "1"
   },
   "contractor": {
-    "id": "01HTJT72FD3WWH72X7ZAHW3P31",
-    "contactId": "01HTJT72FE1FF71PZXWP4GF64Q"
+    "id": "01HTQ8PG6D03YJMBZZCC06KYVF",
+    "contactId": "01HTQ8PG6DK22RDHSHX260BN8H"
   },
   "driver": {
     "name": "Jan Kowalski",
@@ -48,3 +48,11 @@ GET localhost/spedition-orders
 
 ### Some spedition order
 GET localhost/spedition-orders/01HTJTK8VB3WVAYFDA2AVR4FCD
+
+### change status
+PATCH localhost/spedition-orders/01HTQ8R362MFCHR6HEKFBQ7ZG0
+Content-Type: application/json
+
+{
+  "status": "CREATED"
+}

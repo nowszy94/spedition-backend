@@ -4,10 +4,11 @@ import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedi
 
 type DynamoDBSpeditionOrderStatus =
   | 'DRAFT'
-  | 'INPROGRESS'
+  | 'CREATED'
+  | 'LOADED'
+  | 'UNLOADED'
   | 'DONE'
-  | 'STORNO'
-  | 'REMOVED';
+  | 'STORNO';
 
 export class DynamoDBSpeditionOrderDto extends Item {
   public id: string;
@@ -185,23 +186,23 @@ export class DynamoDBSpeditionOrderDto extends Item {
   });
 
   static fromDomain = (
-    contractor: SpeditionOrder,
+    speditionOrder: SpeditionOrder,
   ): DynamoDBSpeditionOrderDto => {
     const dto = new DynamoDBSpeditionOrderDto();
-    dto.id = contractor.id;
-    dto.orderId = contractor.orderId;
-    dto.creationDate = contractor.creationDate;
-    dto.companyId = contractor.companyId;
-    dto.creator = contractor.creator;
-    dto.contractor = contractor.contractor;
-    dto.driver = contractor.driver;
-    dto.vehicle = contractor.vehicle;
-    dto.loading = contractor.loading;
-    dto.unloading = contractor.unloading;
-    dto.loadDetails = contractor.loadDetails;
-    dto.freight = contractor.freight;
-    dto.status = contractor.status;
-    dto.additionalInfo = contractor.additionalInfo;
+    dto.id = speditionOrder.id;
+    dto.orderId = speditionOrder.orderId;
+    dto.creationDate = speditionOrder.creationDate;
+    dto.companyId = speditionOrder.companyId;
+    dto.creator = speditionOrder.creator;
+    dto.contractor = speditionOrder.contractor;
+    dto.driver = speditionOrder.driver;
+    dto.vehicle = speditionOrder.vehicle;
+    dto.loading = speditionOrder.loading;
+    dto.unloading = speditionOrder.unloading;
+    dto.loadDetails = speditionOrder.loadDetails;
+    dto.freight = speditionOrder.freight;
+    dto.status = speditionOrder.status;
+    dto.additionalInfo = speditionOrder.additionalInfo;
 
     return dto;
   };

@@ -93,7 +93,7 @@ export const speditionOrders: SpeditionOrder[] = [
       carLicensePlate: 'PZ 535CD',
       trailerLicensePlate: 'WX 556AV',
     },
-    status: 'INPROGRESS',
+    status: 'CREATED',
     loading: {
       address: 'Paper Gate , Zum Südtor 2 , D-18147 Rostock',
       date: new Date(2024, 1, 13).getTime(),

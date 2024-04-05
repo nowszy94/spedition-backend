@@ -2,7 +2,6 @@ import { ulid } from 'ulid';
 import { SpeditionOrder } from '../entities/spedition-order.entity';
 
 export class CreateSpeditionOrderDto {
-  companyId: string;
   creator: {
     id: string;
   };
@@ -44,18 +43,19 @@ export class CreateSpeditionOrderDto {
   additionalInfo: string;
 
   static toNewEntity = (
+    companyId: string,
     dto: CreateSpeditionOrderDto,
     creator: SpeditionOrder['creator'],
-    contractor: SpeditionOrder['contractor'],
-    orderId: string,
+    contractor?: SpeditionOrder['contractor'],
+    orderId?: string,
   ): SpeditionOrder => ({
     id: ulid(),
-    orderId,
+    orderId: orderId || '', // TODO create separate entity type for drafts
     creationDate: new Date().getTime(),
     status: 'DRAFT',
     creator,
     contractor,
-    companyId: dto.companyId,
+    companyId,
     driver: dto.driver,
     vehicle: dto.vehicle,
     loading: dto.loading,

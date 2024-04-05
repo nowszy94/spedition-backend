@@ -6,6 +6,8 @@ import { ContractorsController } from './modules/contractors/contractors.control
 import { SpeditionOrdersService } from './modules/spedition-orders/spedition-orders.service';
 import { SpeditionOrdersController } from './modules/spedition-orders/spedition-orders.controller';
 import { SettingsController } from './modules/settings/settings.controller';
+import { SpeditionOrderStatusService } from './modules/spedition-orders/spedition-order-status.service';
+import { NewOrderIdService } from './modules/spedition-orders/new-order-id.service';
 
 @Module({
   imports: [],
@@ -15,6 +17,12 @@ import { SettingsController } from './modules/settings/settings.controller';
     SpeditionOrdersController,
     SettingsController,
   ],
-  providers: [AppService, ContractorsService, SpeditionOrdersService],
+  providers: [
+    AppService,
+    ContractorsService,
+    NewOrderIdService,
+    SpeditionOrdersService,
+    SpeditionOrderStatusService,
+  ],
 })
 export class AppModule {}
