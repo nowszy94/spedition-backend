@@ -20,13 +20,13 @@ Content-Type: application/json
     "trailerLicensePlate": "WX 556AV"
   },
   "loading": {
-    "date": 1707346800000,
+    "date": 1712700000000,
     "address": "Seaking Poland Ltd Sp. z o.o., ul.Nowa 1B, 64-700 Czarnkow, PL",
     "loadingNumber": "9qwer",
     "additionalInfo": "Dodatkowe informacje dotyczace zaladunku"
   },
   "unloading": {
-    "date": 1707692400000,
+    "date": 1712872800000,
     "address":
     "I.SEAKING FRANCE S.A.R.L C/O IDEA LOGISTIQUE ,LOGISTICTIPORT, 4 RUE JEAN-BAPTISTE MARCET BATIMENT C, 44570 TRIGNAC, FR",
     "unloadingNumber": "abc44",

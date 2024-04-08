@@ -10,28 +10,29 @@ export class NewOrderIdService {
     this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
   }
 
-  async createNewOrderId(companyId: string): Promise<string> {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    const startOfCurrentMonth = new Date(currentYear, currentMonth, 1);
-    const startOfCurrentMonthTime = startOfCurrentMonth.getTime();
+  async createNewOrderId(companyId: string, forDate: Date): Promise<string> {
+    const forYear = forDate.getFullYear();
+    const forMonth = forDate.getMonth();
 
     const orders = (
       await this.speditionOrderRepository.findAllSpeditionOrders(companyId)
     ).filter(({ status }) => status !== 'DRAFT');
 
-    const thisMonthOrders = orders.filter(
-      ({ creationDate }) => startOfCurrentMonthTime <= creationDate,
-    );
+    const ordersInRequestedMonth = orders.filter(({ unloading }) => {
+      const orderUnloadingMonth = new Date(unloading.date).getMonth();
+      const orderUnloadingYear = new Date(unloading.date).getFullYear();
 
-    const nextOrderId = thisMonthOrders.length + 1;
+      return orderUnloadingYear === forYear && orderUnloadingMonth === forMonth;
+    });
 
-    const normalCurrentMonth = currentMonth + 1;
+    const nextOrderId = ordersInRequestedMonth.length + 1;
+
+    const normalizedMonthNumber = forMonth + 1;
     const preparedMonth =
-      normalCurrentMonth >= 10 ? normalCurrentMonth : `0${normalCurrentMonth}`;
+      normalizedMonthNumber >= 10
+        ? normalizedMonthNumber
+        : `0${normalizedMonthNumber}`;
 
-    return `${nextOrderId}/${preparedMonth}/${currentYear}`;
+    return `${nextOrderId}/${preparedMonth}/${forYear}`;
   }
 }

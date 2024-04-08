@@ -18,6 +18,7 @@ export class SpeditionOrderStatusService {
     if (toStatus === 'CREATED' && currentStatus === 'DRAFT') {
       const newOrderId = await this.newOrderIdService.createNewOrderId(
         speditionOrder.companyId,
+        new Date(speditionOrder.unloading.date),
       );
 
       return {

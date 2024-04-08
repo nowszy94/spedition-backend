@@ -71,7 +71,10 @@ export class SpeditionOrdersService {
             contractorFromDto.contactId,
           )
         : undefined;
-    const newOrderId = await this.newOrderIdService.createNewOrderId(companyId);
+    const newOrderId = await this.newOrderIdService.createNewOrderId(
+      companyId,
+      new Date(createSpeditionOrderDto.unloading.date),
+    );
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       companyId,
