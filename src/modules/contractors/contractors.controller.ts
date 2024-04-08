@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
@@ -14,24 +15,33 @@ import { COMPANY_ID } from '../../const';
 
 @Controller('contractors')
 export class ContractorsController {
-  constructor(private readonly contractorsService: ContractorsService) {}
+  private readonly logger = new Logger(ContractorsController.name);
 
-  @Post()
-  create(@Body() createContractorDto: CreateContractorDto) {
-    return this.contractorsService.create({
-      ...createContractorDto,
-      companyId: COMPANY_ID,
-    });
-  }
+  constructor(private readonly contractorsService: ContractorsService) {}
 
   @Get()
   findAll() {
+    this.logger.log('Called findAll contractors endpoint');
+
     return this.contractorsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
+    this.logger.log(`Called findOne contractors endpoint (id: ${id})`);
+
     return this.contractorsService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() createContractorDto: CreateContractorDto) {
+    this.logger.log('Called create contractor endpoint');
+    this.logger.log('');
+
+    return this.contractorsService.create({
+      ...createContractorDto,
+      companyId: COMPANY_ID,
+    });
   }
 
   @Put(':id')

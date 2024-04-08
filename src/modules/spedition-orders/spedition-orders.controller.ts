@@ -14,7 +14,11 @@ import { SpeditionOrdersService } from './spedition-orders.service';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import { COMPANY_ID } from '../../const';
-import { PatchSpeditionOrderDto } from './dto/patch-spedition-order.dto';
+import {
+  PatchSpeditionOrderDto,
+  PatchSpeditionOrderOrderIdDto,
+  PatchSpeditionOrderStatusDto,
+} from './dto/patch-spedition-order.dto';
 
 @Controller('spedition-orders')
 export class SpeditionOrdersController {
@@ -32,7 +36,7 @@ export class SpeditionOrdersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    this.logger.log('Called findOne spedition-orders endpoint');
+    this.logger.log(`Called findOne spedition-orders endpoint (id: ${id})`);
     return this.speditionOrdersService.findOne(id, COMPANY_ID);
   }
 
@@ -61,7 +65,7 @@ export class SpeditionOrdersController {
     @Param('id') id: string,
     @Body() updateSpeditionOrderDto: UpdateSpeditionOrderDto,
   ) {
-    this.logger.log('Called update spedition-orders endpoint');
+    this.logger.log(`Called update spedition-orders endpoint (id: ${id})`);
 
     return this.speditionOrdersService.update(
       id,
@@ -75,14 +79,48 @@ export class SpeditionOrdersController {
     @Param('id') id: string,
     @Body() patchSpeditionOrderDto: PatchSpeditionOrderDto,
   ) {
-    this.logger.log('Called patch spedition-orders endpoint');
+    if (this.isStatusPatch(patchSpeditionOrderDto)) {
+      this.logger.log(
+        `Called patch status spedition-orders endpoint (id: ${id})`,
+      );
 
-    return this.speditionOrdersService.changeStatus(
-      id,
-      COMPANY_ID,
-      patchSpeditionOrderDto.status,
+      return this.speditionOrdersService.changeStatus(
+        id,
+        COMPANY_ID,
+        patchSpeditionOrderDto.status,
+      );
+    }
+
+    if (this.isOrderIdPatch(patchSpeditionOrderDto)) {
+      this.logger.log(
+        `Called patch orderId spedition-orders endpoint (id: ${id})`,
+      );
+
+      return this.speditionOrdersService.changeOrderId(
+        id,
+        COMPANY_ID,
+        patchSpeditionOrderDto.orderId,
+      );
+    }
+
+    this.logger.log(
+      `[BUG from frontend] Called unknown patch spedition-orders endpoint (id: ${id})`,
     );
+
+    return null; // TODO add error to return 400
   }
+
+  private isStatusPatch = (
+    dto: PatchSpeditionOrderDto,
+  ): dto is PatchSpeditionOrderStatusDto => {
+    return 'status' in dto;
+  };
+
+  private isOrderIdPatch = (
+    dto: PatchSpeditionOrderDto,
+  ): dto is PatchSpeditionOrderOrderIdDto => {
+    return 'orderId' in dto;
+  };
 
   @Delete(':id')
   async remove(@Param('id') id: string) {

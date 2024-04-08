@@ -5,7 +5,6 @@ import { SpeditionOrder } from './entities/spedition-order.entity';
 import { ContractorsService } from '../contractors/contractors.service';
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
-import { PatchSpeditionOrderDto } from './dto/patch-spedition-order.dto';
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';
 
@@ -162,7 +161,7 @@ export class SpeditionOrdersService {
   async changeStatus(
     id: string,
     companyId: string,
-    newStatus: PatchSpeditionOrderDto['status'],
+    newStatus: SpeditionOrder['status'],
   ): Promise<SpeditionOrder | null> {
     const foundSpeditionOrder =
       await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
@@ -182,6 +181,28 @@ export class SpeditionOrdersService {
     );
 
     return updatedSpeditionOrder;
+  }
+
+  async changeOrderId(
+    id: string,
+    companyId: string,
+    newOrderId: SpeditionOrder['orderId'],
+  ) {
+    const foundSpeditionOrder =
+      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+
+    if (!foundSpeditionOrder) {
+      return null;
+    }
+
+    const updatedSpeditionOrder = {
+      ...foundSpeditionOrder,
+      orderId: newOrderId,
+    }; // TODO add validation if there's already order with such id
+
+    await this.speditionOrderRepository.updateSpeditionOrder(
+      updatedSpeditionOrder,
+    );
   }
 
   async remove(id: string, companyId: string) {
