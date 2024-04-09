@@ -36,7 +36,6 @@ export class ContractorsController {
   @Post()
   create(@Body() createContractorDto: CreateContractorDto) {
     this.logger.log('Called create contractor endpoint');
-    this.logger.log('');
 
     return this.contractorsService.create({
       ...createContractorDto,

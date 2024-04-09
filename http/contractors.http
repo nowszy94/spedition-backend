@@ -40,6 +40,66 @@ Content-Type: application/json
   ]
 }
 
+### Create contractor #11
+POST localhost/contractors
+Content-Type: application/json
+
+{
+  "name": "Firma Produkcyjno Handlowo Usługowa Jurek Jerzy Lamch",
+  "phoneNumber": "+48 668052915",
+  "email": "jurekzarki@wp.pl",
+  "address": "PL 42-310 Żarki\nMyszkowska 57",
+  "nip": "5770200884",
+  "additionalInfo": "",
+  "contacts": [
+    {
+      "name": "Przemysław Derejczyk",
+      "email": "jurekzarki@wp.pl",
+      "phoneNumber": "+48 668052915"
+    }
+  ]
+}
+
+### Create contractor #12
+POST localhost/contractors
+Content-Type: application/json
+
+{
+  "name": "Firma Produkcyjno Handlowo Usługowa Jurek Jerzy Lamch",
+  "phoneNumber": "+48 668052915",
+  "email": "jurekzarki@wp.pl",
+  "address": "PL 42-310 Żarki\nMyszkowska 57",
+  "nip": "5770200884",
+  "additionalInfo": "",
+  "contacts": [
+    {
+      "name": "Przemysław Derejczyk",
+      "email": "jurekzarki@wp.pl",
+      "phoneNumber": "+48 668052915"
+    }
+  ]
+}
+
+### Create contractor #13
+POST localhost/contractors
+Content-Type: application/json
+
+{
+  "name": "OST-SPEED Magdalena Piasecka",
+  "nip": "692-234-93-46",
+  "phoneNumber": "",
+  "email": "dyspozytor@ostspeed.pl",
+  "address": "Kwiatowa 10\nPL 59-160 Radwanice",
+  "additionalInfo": "",
+  "contacts": [
+    {
+      "name": "Sebastian Sykuła",
+      "email": "dyspozytor@ostspeed.pl",
+      "phoneNumber": "885234636"
+    }
+  ]
+}
+
 ### All contractors
 GET localhost/contractors
 

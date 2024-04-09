@@ -238,7 +238,7 @@ export class SpeditionOrdersService {
       address: foundContractor.address,
       email: foundContractor.email,
       phoneNumber: foundContractor.phoneNumber,
-      nip: foundContractor.phoneNumber,
+      nip: foundContractor.nip,
       contact: foundContact && {
         id: foundContact.id,
         name: foundContact.name,

@@ -42,6 +42,55 @@ Content-Type: application/json
   "additionalInfo": "Dodatkowe informacje o zleceniu"
 }
 
+### Create spedition-order #11
+POST localhost/spedition-orders?status=DRAFT
+Content-Type: application/json
+
+{
+  "creator": {
+    "id": "1"
+  },
+  "contractor": {
+    "id": "01HTZQB5W93J9P5VZW83YQRMPE",
+    "contactId": "01HTZQB5W91GSDBJ8SSS7K1EZJ"
+  },
+  "driver": {
+    "name": "",
+    "phoneNumber": "",
+    "identityCardNumber": ""
+  },
+  "vehicle": {
+    "carLicensePlate": "FG8784P",
+    "trailerLicensePlate": "DPL3T25"
+  },
+  "loading": {
+    "date": 1712707200000,
+    "address": "EMW Treuen GmbH,\nHerlasgrüner Str. 72, 08233 Treuen, Niemcy",
+    "loadingNumber": "A066438403",
+    "additionalInfo": "8:00 - 16:00 "
+  },
+  "unloading": {
+    "date": 1712793600000,
+    "address": "Gedia Poland Sp. z o.o. \nul. Staszica2 , PL 67-100 Nowa Sól",
+    "unloadingNumber": "",
+    "additionalInfo": "rozładunek do 23:59"
+  },
+  "loadDetails": [
+    {
+      "name": "Stal rolka",
+      "value": "24000kg"
+    }
+  ],
+  "freight": {
+    "value": "425",
+    "vatRate": 23,
+    "currency": "EUR",
+    "paymentDays": 45
+  },
+  "status": "CREATED",
+  "additionalInfo": "Wymagane czyste, suche auto oraz podstawowy sprzęt do zabezpieczenia ładunku - pasy, narożniki i maty.  Wymagana naczepa Coilmulda + min. 5 łańcuchów do zabezpieczenia towaru. \n "
+}
+
 ### All spedition orders
 GET localhost/spedition-orders
 
