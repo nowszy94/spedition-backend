@@ -27,6 +27,7 @@ export class SpeditionOrdersService {
   async createDraftSpeditionOrder(
     companyId: string,
     createSpeditionOrderDto: CreateSpeditionOrderDto,
+    creator: SpeditionOrder['creator'],
   ): Promise<SpeditionOrder> {
     const contractorFromDto = createSpeditionOrderDto.contractor;
 
@@ -42,12 +43,7 @@ export class SpeditionOrdersService {
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       companyId,
       createSpeditionOrderDto,
-      {
-        id: '1',
-        name: 'Dominik Kasprzak',
-        email: 'd.kasprzak@rajkotransport.eu',
-        phoneNumber: '+48 451-683-803',
-      }, // TODO fetch creator based on speditionOrder.creator.id
+      creator,
       contractor,
     );
 
@@ -62,6 +58,7 @@ export class SpeditionOrdersService {
   async createActiveSpeditionOrder(
     companyId: string,
     createSpeditionOrderDto: CreateSpeditionOrderDto,
+    creator: SpeditionOrder['creator'],
   ) {
     const contractorFromDto = createSpeditionOrderDto.contractor;
 
@@ -81,12 +78,7 @@ export class SpeditionOrdersService {
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       companyId,
       createSpeditionOrderDto,
-      {
-        id: '1',
-        name: 'Dominik Kasprzak',
-        email: 'd.kasprzak@rajkotransport.eu',
-        phoneNumber: '+48 451-683-803',
-      }, // TODO fetch creator based on speditionOrder.creator.id
+      creator,
       contractor,
       newOrderId,
     );
@@ -133,6 +125,7 @@ export class SpeditionOrdersService {
       companyId: foundSpeditionOrder.companyId,
       creationDate: foundSpeditionOrder.creationDate,
       status: foundSpeditionOrder.status,
+      creator: foundSpeditionOrder.creator,
       loading: updateSpeditionOrderDto.loading,
       unloading: updateSpeditionOrderDto.unloading,
       loadDetails: updateSpeditionOrderDto.loadDetails,
@@ -140,12 +133,6 @@ export class SpeditionOrdersService {
       driver: updateSpeditionOrderDto.driver,
       vehicle: updateSpeditionOrderDto.vehicle,
       additionalInfo: updateSpeditionOrderDto.additionalInfo,
-      creator: {
-        id: '1',
-        name: 'Dominik Kasprzak',
-        email: 'd.kasprzak@rajkotransport.eu',
-        phoneNumber: '+48 451-683-803',
-      },
       contractor: contractor && {
         id: contractor.id,
         name: contractor.name,

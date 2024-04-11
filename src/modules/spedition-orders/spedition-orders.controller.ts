@@ -53,12 +53,14 @@ export class SpeditionOrdersController {
       return this.speditionOrdersService.createDraftSpeditionOrder(
         user.companyId,
         createSpeditionOrderDto,
+        user,
       );
     }
 
     return this.speditionOrdersService.createActiveSpeditionOrder(
       user.companyId,
       createSpeditionOrderDto,
+      user,
     );
   }
 
