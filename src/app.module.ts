@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ContractorsService } from './modules/contractors/contractors.service';
@@ -8,6 +8,7 @@ import { SpeditionOrdersController } from './modules/spedition-orders/spedition-
 import { SettingsController } from './modules/settings/settings.controller';
 import { SpeditionOrderStatusService } from './modules/spedition-orders/spedition-order-status.service';
 import { NewOrderIdService } from './modules/spedition-orders/new-order-id.service';
+import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-check.middleware';
 
 @Module({
   imports: [],
@@ -25,4 +26,8 @@ import { NewOrderIdService } from './modules/spedition-orders/new-order-id.servi
     SpeditionOrderStatusService,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthenticationTokenCheckMiddleware).forRoutes('/');
+  }
+}
