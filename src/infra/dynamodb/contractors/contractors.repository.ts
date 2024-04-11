@@ -82,8 +82,16 @@ export class DynamoDBContractorsRepository implements ContractorsRepository {
       .promise();
   }
 
-  async updateContractor(updatedContractor: Contractor): Promise<Contractor> {
-    const contractorDto = DynamoDBContractorDto.fromDomain(updatedContractor);
+  async updateContractor(
+    companyId: string,
+    id: string,
+    updatedContractor: Contractor,
+  ): Promise<Contractor> {
+    const contractorDto = DynamoDBContractorDto.fromDomain({
+      ...updatedContractor,
+      id,
+      companyId,
+    });
     const contractorItem = contractorDto.toItem();
 
     await this.dynamoDB

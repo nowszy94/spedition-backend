@@ -3,11 +3,11 @@ import { CreateContractorDto } from './dto/create-contractor.dto';
 import { UpdateContractorDto } from './dto/update-contractor.dto';
 import { ContractorsRepository } from './contractors-repository.port';
 import { DynamoDBContractorsRepository } from '../../infra/dynamodb/contractors/contractors.repository';
-import { COMPANY_ID } from '../../const';
 
 @Injectable()
 export class ContractorsService {
   private readonly contractorsRepository: ContractorsRepository;
+
   constructor() {
     this.contractorsRepository = new DynamoDBContractorsRepository();
   }
@@ -20,24 +20,30 @@ export class ContractorsService {
     return newContractor.id;
   }
 
-  async findAll() {
-    return await this.contractorsRepository.findAllContractors(COMPANY_ID);
+  async findAll(companyId: string) {
+    return await this.contractorsRepository.findAllContractors(companyId);
   }
 
-  async findOne(contractorId: string) {
+  async findOne(companyId: string, contractorId: string) {
     return await this.contractorsRepository.findContractor(
-      COMPANY_ID,
+      companyId,
       contractorId,
     );
   }
 
-  async update(id: string, updateContractorDto: UpdateContractorDto) {
+  async update(
+    companyId: string,
+    id: string,
+    updateContractorDto: UpdateContractorDto,
+  ) {
     return await this.contractorsRepository.updateContractor(
+      companyId,
+      id,
       updateContractorDto,
     );
   }
 
-  async remove(id: string) {
-    await this.contractorsRepository.deleteContractor(COMPANY_ID, id);
+  async remove(companyId: string, id: string) {
+    await this.contractorsRepository.deleteContractor(companyId, id);
   }
 }

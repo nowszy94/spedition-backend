@@ -33,6 +33,7 @@ export class SpeditionOrdersService {
     const contractor: SpeditionOrder['contractor'] | undefined =
       contractorFromDto
         ? await this.getContractorForOrder(
+            companyId,
             contractorFromDto.id,
             contractorFromDto.contactId,
           )
@@ -67,6 +68,7 @@ export class SpeditionOrdersService {
     const contractor: SpeditionOrder['contractor'] | undefined =
       contractorFromDto
         ? await this.getContractorForOrder(
+            companyId,
             contractorFromDto.id,
             contractorFromDto.contactId,
           )
@@ -117,6 +119,7 @@ export class SpeditionOrdersService {
     }
 
     const contractor = await this.contractorService.findOne(
+      companyId,
       updateSpeditionOrderDto.contractor?.id,
     );
 
@@ -213,10 +216,14 @@ export class SpeditionOrdersService {
   }
 
   private getContractorForOrder = async (
+    companyId: string,
     contractorId: string,
     contactId?: string,
   ): Promise<SpeditionOrder['contractor']> => {
-    const foundContractor = await this.contractorService.findOne(contractorId);
+    const foundContractor = await this.contractorService.findOne(
+      companyId,
+      contractorId,
+    );
 
     if (!foundContractor) {
       throw new Error(`Contractor for ${contractorId} not found `);

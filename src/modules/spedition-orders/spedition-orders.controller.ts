@@ -13,12 +13,13 @@ import {
 import { SpeditionOrdersService } from './spedition-orders.service';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
-import { COMPANY_ID } from '../../const';
 import {
   PatchSpeditionOrderDto,
   PatchSpeditionOrderOrderIdDto,
   PatchSpeditionOrderStatusDto,
 } from './dto/patch-spedition-order.dto';
+import { User } from '../../auth/user.decorator';
+import { KnownUser } from '../../auth/known-users.mock';
 
 @Controller('spedition-orders')
 export class SpeditionOrdersController {
@@ -29,33 +30,34 @@ export class SpeditionOrdersController {
   ) {}
 
   @Get()
-  findAll() {
+  findAll(@User() user: KnownUser) {
     this.logger.log('Called findAll spedition-orders endpoint');
-    return this.speditionOrdersService.findAll(COMPANY_ID);
+    return this.speditionOrdersService.findAll(user.companyId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @User() user: KnownUser) {
     this.logger.log(`Called findOne spedition-orders endpoint (id: ${id})`);
-    return this.speditionOrdersService.findOne(id, COMPANY_ID);
+    return this.speditionOrdersService.findOne(id, user.companyId);
   }
 
   @Post()
   create(
     @Body() createSpeditionOrderDto: CreateSpeditionOrderDto,
     @Query('status') status: string,
+    @User() user: KnownUser,
   ) {
     this.logger.log('Called create spedition-orders endpoint');
 
     if (status === 'DRAFT') {
       return this.speditionOrdersService.createDraftSpeditionOrder(
-        COMPANY_ID,
+        user.companyId,
         createSpeditionOrderDto,
       );
     }
 
     return this.speditionOrdersService.createActiveSpeditionOrder(
-      COMPANY_ID,
+      user.companyId,
       createSpeditionOrderDto,
     );
   }
@@ -64,12 +66,13 @@ export class SpeditionOrdersController {
   update(
     @Param('id') id: string,
     @Body() updateSpeditionOrderDto: UpdateSpeditionOrderDto,
+    @User() user: KnownUser,
   ) {
     this.logger.log(`Called update spedition-orders endpoint (id: ${id})`);
 
     return this.speditionOrdersService.update(
       id,
-      COMPANY_ID,
+      user.companyId,
       updateSpeditionOrderDto,
     );
   }
@@ -78,6 +81,7 @@ export class SpeditionOrdersController {
   changeStatus(
     @Param('id') id: string,
     @Body() patchSpeditionOrderDto: PatchSpeditionOrderDto,
+    @User() user: KnownUser,
   ) {
     if (this.isStatusPatch(patchSpeditionOrderDto)) {
       this.logger.log(
@@ -86,7 +90,7 @@ export class SpeditionOrdersController {
 
       return this.speditionOrdersService.changeStatus(
         id,
-        COMPANY_ID,
+        user.companyId,
         patchSpeditionOrderDto.status,
       );
     }
@@ -98,7 +102,7 @@ export class SpeditionOrdersController {
 
       return this.speditionOrdersService.changeOrderId(
         id,
-        COMPANY_ID,
+        user.companyId,
         patchSpeditionOrderDto.orderId,
       );
     }
@@ -123,8 +127,8 @@ export class SpeditionOrdersController {
   };
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @User() user: KnownUser) {
     this.logger.log('Called remove spedition-orders endpoint');
-    await this.speditionOrdersService.remove(id, COMPANY_ID);
+    await this.speditionOrdersService.remove(id, user.companyId);
   }
 }
