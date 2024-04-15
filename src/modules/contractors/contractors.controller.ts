@@ -11,8 +11,8 @@ import {
 import { ContractorsService } from './contractors.service';
 import { CreateContractorDto } from './dto/create-contractor.dto';
 import { UpdateContractorDto } from './dto/update-contractor.dto';
-import { User } from '../../auth/user.decorator';
-import { KnownUser } from '../../auth/known-users.mock';
+import { UserDecorator } from '../../auth/cognito-user-email.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Controller('contractors')
 export class ContractorsController {
@@ -21,15 +21,15 @@ export class ContractorsController {
   constructor(private readonly contractorsService: ContractorsService) {}
 
   @Get()
-  findAll(@User() user: KnownUser) {
-    this.logger.log('Called findAll contractors endpoint');
+  findAll(@UserDecorator() user: User) {
+    this.logger.debug('Called findAll contractors endpoint');
 
     return this.contractorsService.findAll(user.companyId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @User() user: KnownUser) {
-    this.logger.log(`Called findOne contractors endpoint (id: ${id})`);
+  findOne(@Param('id') id: string, @UserDecorator() user: User) {
+    this.logger.debug(`Called findOne contractors endpoint (id: ${id})`);
 
     return this.contractorsService.findOne(user.companyId, id);
   }
@@ -37,9 +37,9 @@ export class ContractorsController {
   @Post()
   create(
     @Body() createContractorDto: CreateContractorDto,
-    @User() user: KnownUser,
+    @UserDecorator() user: User,
   ) {
-    this.logger.log('Called create contractor endpoint');
+    this.logger.debug('Called create contractor endpoint');
 
     return this.contractorsService.create({
       ...createContractorDto,
@@ -51,7 +51,7 @@ export class ContractorsController {
   update(
     @Param('id') id: string,
     @Body() updateContractorDto: UpdateContractorDto,
-    @User() user: KnownUser,
+    @UserDecorator() user: User,
   ) {
     return this.contractorsService.update(
       user.companyId,
@@ -61,7 +61,7 @@ export class ContractorsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @User() user: KnownUser) {
+  remove(@Param('id') id: string, @UserDecorator() user: User) {
     this.contractorsService.remove(user.companyId, id);
   }
 }

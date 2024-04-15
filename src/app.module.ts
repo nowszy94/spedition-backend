@@ -9,6 +9,8 @@ import { SettingsController } from './modules/settings/settings.controller';
 import { SpeditionOrderStatusService } from './modules/spedition-orders/spedition-order-status.service';
 import { NewOrderIdService } from './modules/spedition-orders/new-order-id.service';
 import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-check.middleware';
+import { UsersService } from './modules/users/users.service';
+import { UsersController } from './modules/users/users.controller';
 
 @Module({
   imports: [],
@@ -17,6 +19,7 @@ import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-
     ContractorsController,
     SpeditionOrdersController,
     SettingsController,
+    UsersController,
   ],
   providers: [
     AppService,
@@ -24,6 +27,7 @@ import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-
     NewOrderIdService,
     SpeditionOrdersService,
     SpeditionOrderStatusService,
+    UsersService,
   ],
 })
 export class AppModule implements NestModule {

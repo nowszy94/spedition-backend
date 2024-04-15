@@ -6,8 +6,8 @@ import {
   GetUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
-import { knownUsers } from './known-users.mock';
 import { UnauthenticatedException } from './exceptions/unauthenticated.exception';
+import { UsersService } from '../modules/users/users.service';
 
 @Injectable()
 export class AuthenticationTokenCheckMiddleware implements NestMiddleware {
@@ -17,7 +17,7 @@ export class AuthenticationTokenCheckMiddleware implements NestMiddleware {
   private readonly userPoolId: string;
   private readonly userPoolClientId: string;
 
-  constructor() {
+  constructor(private usersService: UsersService) {
     this.cognitoIdentityServiceProvider = new CognitoIdentityProviderClient({
       region: process.env.REGION || 'eu-central-1',
     });
@@ -51,22 +51,20 @@ export class AuthenticationTokenCheckMiddleware implements NestMiddleware {
       throw new UnauthenticatedException();
     }
 
-    const cognitoUserEmail = await this.getCognitoUser(jwtToken);
+    const cognitoUserSub = await this.getCognitoUserSub(jwtToken);
 
-    if (!cognitoUserEmail) {
+    if (!cognitoUserSub) {
       this.logger.warn(
         `(path: ${requestPath}) Called with valid token but with no email in token: ${token}`,
       );
       throw new UnauthenticatedException();
     }
 
-    const user = knownUsers.find(
-      (knownUsers) => knownUsers.email === cognitoUserEmail,
-    );
+    const user = await this.usersService.findBySub(cognitoUserSub);
 
     if (!user) {
       this.logger.warn(
-        `(path: ${requestPath}) Called with valid token but without associated user: email: ${cognitoUserEmail}, token: ${token}`,
+        `(path: ${requestPath}) Called with valid token but user does not exists in database: sub: ${cognitoUserSub}, token: ${token}`,
       );
       throw new UnauthenticatedException();
     }
@@ -92,7 +90,7 @@ export class AuthenticationTokenCheckMiddleware implements NestMiddleware {
     }
   };
 
-  private getCognitoUser = async (token: string) => {
+  private getCognitoUserSub = async (token: string) => {
     const params = {
       AccessToken: token,
     };
@@ -100,7 +98,7 @@ export class AuthenticationTokenCheckMiddleware implements NestMiddleware {
     const command = new GetUserCommand(params);
     const response = await this.cognitoIdentityServiceProvider.send(command);
 
-    const email = response.UserAttributes.find(({ Name }) => Name === 'email');
-    return email.Value;
+    const sub = response.UserAttributes.find(({ Name }) => Name === 'sub');
+    return sub.Value;
   };
 }

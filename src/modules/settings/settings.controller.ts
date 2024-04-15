@@ -14,12 +14,13 @@ export class SettingsController {
 
   @Get()
   find() {
+    this.logger.debug(`Called get settings endpoint`);
     return this.settings;
   }
 
   @Put()
   update(@Body() updatedSettings: Settings) {
-    this.logger.log(`Called put settings endpoint`);
+    this.logger.debug(`Called put settings endpoint`);
 
     this.settings = updatedSettings;
 
