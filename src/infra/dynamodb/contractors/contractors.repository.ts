@@ -24,6 +24,7 @@ export class DynamoDBContractorsRepository implements ContractorsRepository {
         ExpressionAttributeValues: {
           ':pk': { S: `Company#${companyId}/Contractor` },
         },
+        ScanIndexForward: false,
       })
       .promise();
 

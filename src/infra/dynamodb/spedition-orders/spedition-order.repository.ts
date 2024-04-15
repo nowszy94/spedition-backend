@@ -28,6 +28,7 @@ export class DynamoDBSpeditionOrderRepository
         ExpressionAttributeValues: {
           ':pk': { S: `Company#${companyId}/SpeditionOrder` },
         },
+        ScanIndexForward: false,
       })
       .promise();
 
