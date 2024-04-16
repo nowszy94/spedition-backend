@@ -46,12 +46,16 @@ export class DynamoDBSpeditionOrderDto extends Item {
   };
   public loading: {
     date: number;
+    endDate: number;
+    time: string;
     address: string;
     loadingNumber: string;
     additionalInfo: string;
   };
   public unloading: {
     date: number;
+    endDate: number;
+    time: string;
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
@@ -134,6 +138,8 @@ export class DynamoDBSpeditionOrderDto extends Item {
       loading: {
         M: {
           date: { N: this.loading.date.toString() },
+          endDate: { N: this.loading.endDate?.toString() },
+          time: { S: this.loading.time },
           address: { S: this.loading.address },
           loadingNumber: { S: this.loading.loadingNumber },
           additionalInfo: { S: this.loading.additionalInfo },
@@ -142,6 +148,8 @@ export class DynamoDBSpeditionOrderDto extends Item {
       unloading: {
         M: {
           date: { N: this.unloading.date.toString() },
+          endDate: { N: this.unloading.endDate?.toString() },
+          time: { S: this.unloading.time },
           address: { S: this.unloading.address },
           unloadingNumber: { S: this.unloading.unloadingNumber },
           additionalInfo: { S: this.unloading.additionalInfo },
@@ -211,6 +219,10 @@ export class DynamoDBSpeditionOrderDto extends Item {
     contractorItem: AttributeMap,
   ): DynamoDBSpeditionOrderDto => {
     const dto = new DynamoDBSpeditionOrderDto();
+
+    const loadingDate = contractorItem.loading.M.date.N;
+    const unloadingDate = contractorItem.unloading.M.date.N;
+
     dto.id = contractorItem.id.S;
     dto.orderId = contractorItem.orderId.S;
     dto.creationDate = Number(contractorItem.creationDate.N);
@@ -245,13 +257,17 @@ export class DynamoDBSpeditionOrderDto extends Item {
       trailerLicensePlate: contractorItem.vehicle.M.trailerLicensePlate.S,
     };
     dto.loading = {
-      date: Number(contractorItem.loading.M.date.N),
+      date: Number(loadingDate),
+      endDate: Number(contractorItem.loading.M.endDate?.N || loadingDate),
+      time: contractorItem.loading.M.time?.S || '',
       address: contractorItem.loading.M.address.S,
       loadingNumber: contractorItem.loading.M.loadingNumber.S,
       additionalInfo: contractorItem.loading.M.additionalInfo.S,
     };
     dto.unloading = {
-      date: Number(contractorItem.unloading.M.date.N),
+      date: Number(unloadingDate),
+      endDate: Number(contractorItem.unloading.M.endDate?.N || unloadingDate),
+      time: contractorItem.unloading.M.time?.S || '',
       address: contractorItem.unloading.M.address.S,
       unloadingNumber: contractorItem.unloading.M.unloadingNumber.S,
       additionalInfo: contractorItem.unloading.M.additionalInfo.S,

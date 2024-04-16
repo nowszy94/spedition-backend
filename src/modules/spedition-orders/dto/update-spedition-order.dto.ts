@@ -19,12 +19,16 @@ export type UpdateSpeditionOrderDto = {
   };
   loading: {
     date: number;
+    endDate: number;
+    time: string;
     address: string;
     loadingNumber: string;
     additionalInfo: string;
   };
   unloading: {
     date: number;
+    endDate: number;
+    time: string;
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
