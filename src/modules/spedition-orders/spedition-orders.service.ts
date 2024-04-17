@@ -198,6 +198,50 @@ export class SpeditionOrdersService {
     );
   }
 
+  async changeContractor(
+    id: string,
+    companyId: string,
+    newContractor?: {
+      id: string;
+      contactId?: string;
+    },
+  ) {
+    const foundSpeditionOrder =
+      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+
+    if (!foundSpeditionOrder) {
+      return null;
+    }
+
+    const contractor =
+      newContractor &&
+      (await this.contractorService.findOne(companyId, newContractor.id));
+
+    const foundContact =
+      newContractor.contactId &&
+      contractor &&
+      contractor.contacts.find(
+        (contact) => contact.id === newContractor.contactId,
+      );
+
+    const updatedSpeditionOrder = {
+      ...foundSpeditionOrder,
+      contractor: contractor && {
+        id: contractor.id,
+        name: contractor.name,
+        email: contractor.email,
+        address: contractor.address,
+        phoneNumber: contractor.phoneNumber,
+        nip: contractor.nip,
+        contact: foundContact,
+      },
+    };
+
+    await this.speditionOrderRepository.updateSpeditionOrder(
+      updatedSpeditionOrder,
+    );
+  }
+
   async remove(id: string, companyId: string) {
     await this.speditionOrderRepository.deleteSpeditionOrder(companyId, id);
   }

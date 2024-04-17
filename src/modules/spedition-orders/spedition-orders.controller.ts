@@ -14,6 +14,7 @@ import { SpeditionOrdersService } from './spedition-orders.service';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import {
+  PatchSpeditionOrderContractorDto,
   PatchSpeditionOrderDto,
   PatchSpeditionOrderOrderIdDto,
   PatchSpeditionOrderStatusDto,
@@ -111,6 +112,18 @@ export class SpeditionOrdersController {
       );
     }
 
+    if (this.isContractorPatch(patchSpeditionOrderDto)) {
+      this.logger.debug(
+        `Called patch contractor spedition-orders endpoint (id: ${id})`,
+      );
+
+      return this.speditionOrdersService.changeContractor(
+        id,
+        user.companyId,
+        patchSpeditionOrderDto.contractor,
+      );
+    }
+
     this.logger.debug(
       `[BUG from frontend] Called unknown patch spedition-orders endpoint (id: ${id})`,
     );
@@ -134,5 +147,11 @@ export class SpeditionOrdersController {
     dto: PatchSpeditionOrderDto,
   ): dto is PatchSpeditionOrderOrderIdDto => {
     return 'orderId' in dto;
+  };
+
+  private isContractorPatch = (
+    dto: PatchSpeditionOrderDto,
+  ): dto is PatchSpeditionOrderContractorDto => {
+    return 'contractor' in dto;
   };
 }
