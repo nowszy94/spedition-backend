@@ -14,4 +14,8 @@ export class UsersService {
   async findBySub(sub: string) {
     return await this.usersRepository.findUserBySub(sub);
   }
+
+  async findAll(companyId: string) {
+    return await this.usersRepository.findAll(companyId);
+  }
 }

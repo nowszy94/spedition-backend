@@ -15,7 +15,7 @@ export class DynamoDBUserDto extends Item {
   }
 
   public get pk(): string {
-    return `Company#${this.companyId}/User#${this.sub}`;
+    return `Company#${this.companyId}/User}`;
   }
 
   public get sk(): string {

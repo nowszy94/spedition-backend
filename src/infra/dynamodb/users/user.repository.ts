@@ -18,6 +18,22 @@ export class DynamoDBUsersRepository implements UsersRepository {
     });
   }
 
+  async findAll(companyId: string): Promise<Array<User>> {
+    const response = await this.dynamoDB
+      .query({
+        TableName: this.tableName,
+        KeyConditionExpression: 'PK = :pk',
+        ExpressionAttributeValues: {
+          ':pk': { S: `Company#${companyId}/User` },
+        },
+      })
+      .promise();
+
+    return response.Items.map((item) =>
+      DynamoDBUserDto.fromItem(item).toDomain(),
+    );
+  }
+
   async findUserBySub(sub: string): Promise<User> {
     const response = await this.dynamoDB
       .query({

@@ -11,6 +11,7 @@ import { NewOrderIdService } from './modules/spedition-orders/new-order-id.servi
 import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-check.middleware';
 import { UsersService } from './modules/users/users.service';
 import { UsersController } from './modules/users/users.controller';
+import { UserDetailsController } from './modules/users/user-details.controller';
 
 @Module({
   imports: [],
@@ -20,6 +21,7 @@ import { UsersController } from './modules/users/users.controller';
     SpeditionOrdersController,
     SettingsController,
     UsersController,
+    UserDetailsController,
   ],
   providers: [
     AppService,
