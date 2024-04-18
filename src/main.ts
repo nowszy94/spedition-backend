@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import * as momentTz from 'moment-timezone';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -10,7 +9,6 @@ async function bootstrap() {
   app.useGlobalFilters(new UnauthenticatedExceptionFilter());
   await app.listen(80);
 
-  moment.locale('pl-PL');
-  momentTz.tz('Poland');
+  momentTz.tz.setDefault('Europe/Warsaw');
 }
 bootstrap();
