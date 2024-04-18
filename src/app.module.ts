@@ -12,12 +12,16 @@ import { AuthenticationTokenCheckMiddleware } from './auth/authentication-token-
 import { UsersService } from './modules/users/users.service';
 import { UsersController } from './modules/users/users.controller';
 import { UserDetailsController } from './modules/users/user-details.controller';
+import { SpeditionOrdersFeedService } from './modules/spedition-orders/spedition-orders-feed.service';
+import { SpeditionOrdersFeedController } from './modules/spedition-orders/spedition-orders-feed.controller';
+import { DynamoDBSpeditionOrderRepository } from './infra/dynamodb/spedition-orders/spedition-order.repository';
 
 @Module({
   imports: [],
   controllers: [
     AppController,
     ContractorsController,
+    SpeditionOrdersFeedController,
     SpeditionOrdersController,
     SettingsController,
     UsersController,
@@ -26,7 +30,9 @@ import { UserDetailsController } from './modules/users/user-details.controller';
   providers: [
     AppService,
     ContractorsService,
+    DynamoDBSpeditionOrderRepository,
     NewOrderIdService,
+    SpeditionOrdersFeedService,
     SpeditionOrdersService,
     SpeditionOrderStatusService,
     UsersService,
