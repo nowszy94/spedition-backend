@@ -66,11 +66,7 @@ export class SpeditionOrdersFeedService {
             status === 'CREATED' ? 'toLoad' : 'loaded',
           );
 
-          if (feedItem.type === 'loaded') {
-            acc.loading[loadingStage].push(feedItem);
-          } else {
-            acc.loading[loadingStage].unshift(feedItem);
-          }
+          acc.loading[loadingStage].push(feedItem);
         }
 
         if (unloadingStage) {
@@ -85,16 +81,13 @@ export class SpeditionOrdersFeedService {
                 ? 'toUnload'
                 : 'unloaded',
           );
-          if (feedItem.type === 'unloaded') {
-            acc.unloading[unloadingStage].push(feedItem);
-          } else {
-            acc.unloading[unloadingStage].unshift(feedItem);
-          }
+          acc.unloading[unloadingStage].push(feedItem);
         }
 
         return acc;
       }, initValue);
   }
+
   private enrichWithFeedStages = (order: SpeditionOrder) => {
     const { loading, unloading, status } = order;
 
