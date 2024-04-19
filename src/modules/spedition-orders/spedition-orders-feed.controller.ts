@@ -2,6 +2,7 @@ import { Controller, Get, Logger } from '@nestjs/common';
 import { UserDecorator } from '../../auth/cognito-user-email.decorator';
 import { User } from '../users/entities/user.entity';
 import { SpeditionOrdersFeedService } from './spedition-orders-feed.service';
+import { SpeditionOrderFeedResponse } from './entities/spedition-orders-feed.entity';
 
 @Controller('spedition-orders-feed')
 export class SpeditionOrdersFeedController {
@@ -12,7 +13,7 @@ export class SpeditionOrdersFeedController {
   ) {}
 
   @Get()
-  find(@UserDecorator() user: User) {
+  find(@UserDecorator() user: User): Promise<SpeditionOrderFeedResponse> {
     this.logger.debug('Called find spedition-orders-feed endpoint');
     return this.speditionOrdersFeedService.getSpeditionOrdersFeed(
       user.companyId,

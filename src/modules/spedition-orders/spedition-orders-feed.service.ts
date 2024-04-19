@@ -4,146 +4,158 @@ import { Injectable } from '@nestjs/common';
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { SpeditionOrder } from './entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
-
-type SpeditionOrderFeedItem = {
-  id: string;
-  type: 'toLoad' | 'toUnload';
-  orderId: string;
-  contractor?: {
-    id: string;
-    name: string;
-  };
-  address: string;
-  date: number;
-  endDate: number;
-};
-
-type SpeditionOrderFeed = {
-  forToday: Array<SpeditionOrderFeedItem>;
-  forTomorrow: Array<SpeditionOrderFeedItem>;
-  late: Array<SpeditionOrderFeedItem>;
-};
+import { Moment } from 'moment';
+import {
+  CheckedStatus,
+  SpeditionOrderFeedItem,
+  SpeditionOrderFeedResponse,
+} from './entities/spedition-orders-feed.entity';
 
 @Injectable()
 export class SpeditionOrdersFeedService {
   private readonly speditionOrdersRepository: SpeditionOrdersRepository;
+  private today: Moment;
+  private tomorrow: Moment;
 
   constructor() {
     this.speditionOrdersRepository = new DynamoDBSpeditionOrderRepository();
+    this.today = moment();
+    this.tomorrow = moment().add(1, 'day');
   }
 
-  async getSpeditionOrdersFeed(companyId: string): Promise<SpeditionOrderFeed> {
+  async getSpeditionOrdersFeed(
+    companyId: string,
+  ): Promise<SpeditionOrderFeedResponse> {
+    this.today = moment();
+    this.tomorrow = moment().add(1, 'day');
+
     const allOrders =
       await this.speditionOrdersRepository.findAllSpeditionOrders(companyId);
 
-    const today = moment();
-    const tomorrow = moment().add(1, 'day');
-
-    const buildItem = (
-      speditionOrder: SpeditionOrder,
-      address: string,
-      date: number,
-      endDate: number,
-    ): SpeditionOrderFeedItem => ({
-      id: speditionOrder.id,
-      type: isToLoading(speditionOrder) ? 'toLoad' : 'toUnload',
-      orderId: speditionOrder.orderId,
-      address,
-      contractor: speditionOrder.contractor && {
-        id: speditionOrder.contractor.id,
-        name: speditionOrder.contractor.name,
+    const initValue: SpeditionOrderFeedResponse = {
+      loading: {
+        forToday: [],
+        forTomorrow: [],
+        late: [],
       },
-      date,
-      endDate,
-    });
-
-    const isForToday = (date: moment.Moment, endDate: moment.Moment) =>
-      today.isBetween(date, endDate, 'day', '[]');
-
-    const isForTomorrow = (date: moment.Moment, endDate: moment.Moment) =>
-      tomorrow.isBetween(date, endDate, 'day', '[]');
-
-    const isLate = (endDate: moment.Moment) => today.isAfter(endDate, 'day');
-
-    const isToLoading = (speditionOrder: SpeditionOrder) =>
-      speditionOrder.status === 'CREATED';
-
-    const isToUnloading = (speditionOrder: SpeditionOrder) =>
-      speditionOrder.status === 'LOADED';
-
-    const initValue: SpeditionOrderFeed = {
-      forToday: [],
-      forTomorrow: [],
-      late: [],
+      unloading: {
+        forToday: [],
+        forTomorrow: [],
+        late: [],
+      },
     };
 
     return allOrders
-      .filter((order) => {
-        if (isToLoading(order)) {
-          const { loading } = order;
-
-          const date = moment(loading.date);
-          const endDate = moment(loading.endDate);
-
-          return (
-            isForToday(moment(date), endDate) ||
-            isForTomorrow(date, endDate) ||
-            isLate(endDate)
-          );
-        }
-        if (isToUnloading(order)) {
-          const { unloading } = order;
-
-          const date = moment(unloading.date);
-          const endDate = moment(unloading.endDate);
-
-          return (
-            isForToday(date, endDate) ||
-            isForTomorrow(date, endDate) ||
-            isLate(endDate)
-          );
-        }
-      })
+      .filter(
+        (order) =>
+          order.status !== 'DRAFT' &&
+          order.status !== 'DONE' &&
+          order.status !== 'STORNO',
+      )
+      .map((order) => this.enrichWithFeedStages(order))
       .reduce((acc, order) => {
-        const handleSpeditionOrderFeed = (item: {
-          address: string;
-          date: number;
-          endDate: number;
-        }) => {
-          const feedItem = buildItem(
+        const { loading, unloading, status, loadingStage, unloadingStage } =
+          order;
+
+        if (loadingStage) {
+          const feedItem = this.buildFeedItem(
             order,
-            item.address,
-            item.date,
-            item.endDate,
+            loading.address,
+            loading.date,
+            loading.endDate,
+            status === 'CREATED' ? 'toLoad' : 'loaded',
           );
 
-          const date = moment(item.date);
-          const endDate = moment(item.endDate);
-
-          if (isForToday(date, endDate)) {
-            acc.forToday.push(feedItem);
+          if (feedItem.type === 'loaded') {
+            acc.loading[loadingStage].push(feedItem);
+          } else {
+            acc.loading[loadingStage].unshift(feedItem);
           }
-
-          if (isForTomorrow(date, endDate)) {
-            acc.forTomorrow.push(feedItem);
-          }
-
-          if (isLate(endDate)) {
-            acc.late.push(feedItem);
-          }
-
-          return acc;
-        };
-
-        if (isToLoading(order)) {
-          return handleSpeditionOrderFeed(order.loading);
         }
 
-        if (isToUnloading(order)) {
-          return handleSpeditionOrderFeed(order.unloading);
+        if (unloadingStage) {
+          const feedItem = this.buildFeedItem(
+            order,
+            unloading.address,
+            unloading.date,
+            unloading.endDate,
+            status === 'CREATED'
+              ? 'toUnloadAndNotYetLoaded'
+              : status === 'LOADED'
+                ? 'toUnload'
+                : 'unloaded',
+          );
+          if (feedItem.type === 'unloaded') {
+            acc.unloading[unloadingStage].push(feedItem);
+          } else {
+            acc.unloading[unloadingStage].unshift(feedItem);
+          }
         }
 
         return acc;
       }, initValue);
   }
+  private enrichWithFeedStages = (order: SpeditionOrder) => {
+    const { loading, unloading, status } = order;
+
+    const loadingDate = moment(loading.date);
+    const loadingEndDate = moment(loading.endDate);
+
+    const unloadingDate = moment(unloading.date);
+    const unloadingEndDate = moment(unloading.endDate);
+
+    let loadingStage;
+
+    if (this.isForToday(loadingDate, loadingEndDate)) {
+      loadingStage = 'forToday';
+    } else if (this.isForTomorrow(loadingDate, loadingEndDate)) {
+      loadingStage = 'forTomorrow';
+    } else if (status === 'CREATED' && this.isLate(loadingEndDate)) {
+      loadingStage = 'late';
+    }
+
+    let unloadingStage;
+
+    if (this.isForToday(unloadingDate, unloadingEndDate)) {
+      unloadingStage = 'forToday';
+    } else if (this.isForTomorrow(unloadingDate, unloadingEndDate)) {
+      unloadingStage = 'forTomorrow';
+    } else if (status !== 'UNLOADED' && this.isLate(unloadingEndDate)) {
+      unloadingStage = 'late';
+    }
+
+    return {
+      ...order,
+      loadingStage,
+      unloadingStage,
+    };
+  };
+
+  private buildFeedItem = (
+    speditionOrder: SpeditionOrder,
+    address: string,
+    date: number,
+    endDate: number,
+    status: CheckedStatus,
+  ): SpeditionOrderFeedItem => ({
+    id: speditionOrder.id,
+    type: status,
+    orderId: speditionOrder.orderId,
+    address,
+    contractor: speditionOrder.contractor && {
+      id: speditionOrder.contractor.id,
+      name: speditionOrder.contractor.name,
+    },
+    date,
+    endDate,
+  });
+
+  private isForToday = (date: moment.Moment, endDate: moment.Moment) =>
+    this.today.isBetween(date, endDate, 'day', '[]');
+
+  private isForTomorrow = (date: moment.Moment, endDate: moment.Moment) =>
+    this.tomorrow.isBetween(date, endDate, 'day', '[]');
+
+  private isLate = (endDate: moment.Moment) =>
+    this.today.isAfter(endDate, 'day');
 }
