@@ -7,6 +7,7 @@ import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SpeditionOrdersService {
@@ -56,27 +57,27 @@ export class SpeditionOrdersService {
   }
 
   async createActiveSpeditionOrder(
-    companyId: string,
+    user: User,
     createSpeditionOrderDto: CreateSpeditionOrderDto,
-    creator: SpeditionOrder['creator'],
   ) {
+    const creator = user.toCreator();
     const contractorFromDto = createSpeditionOrderDto.contractor;
 
     const contractor: SpeditionOrder['contractor'] | undefined =
       contractorFromDto
         ? await this.getContractorForOrder(
-            companyId,
+            user.companyId,
             contractorFromDto.id,
             contractorFromDto.contactId,
           )
         : undefined;
     const newOrderId = await this.newOrderIdService.createNewOrderId(
-      companyId,
+      user,
       new Date(createSpeditionOrderDto.unloading.date),
     );
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
-      companyId,
+      user.companyId,
       createSpeditionOrderDto,
       creator,
       contractor,
@@ -153,11 +154,14 @@ export class SpeditionOrdersService {
 
   async changeStatus(
     id: string,
-    companyId: string,
+    user: User,
     newStatus: SpeditionOrder['status'],
   ): Promise<SpeditionOrder | null> {
     const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+      await this.speditionOrderRepository.findSpeditionOrderById(
+        user.companyId,
+        id,
+      );
 
     if (!foundSpeditionOrder) {
       return null;
@@ -167,6 +171,7 @@ export class SpeditionOrdersService {
       await this.speditionOrderStatusService.handleStatusChange(
         foundSpeditionOrder,
         newStatus,
+        user,
       );
 
     await this.speditionOrderRepository.updateSpeditionOrder(

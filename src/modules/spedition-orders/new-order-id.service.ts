@@ -1,6 +1,8 @@
+import { Injectable } from '@nestjs/common';
+
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
-import { Injectable } from '@nestjs/common';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class NewOrderIdService {
@@ -10,7 +12,9 @@ export class NewOrderIdService {
     this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
   }
 
-  async createNewOrderId(companyId: string, forDate: Date): Promise<string> {
+  async createNewOrderId(user: User, forDate: Date): Promise<string> {
+    const { companyId, preferredOrderIdSuffix } = user;
+
     const forYear = forDate.getFullYear();
     const forMonth = forDate.getMonth();
 
@@ -33,6 +37,6 @@ export class NewOrderIdService {
         ? normalizedMonthNumber
         : `0${normalizedMonthNumber}`;
 
-    return `${nextOrderId}/${preparedMonth}/${forYear}`;
+    return `${nextOrderId}/${preparedMonth}/${forYear}/${preferredOrderIdSuffix}`;
   }
 }

@@ -7,6 +7,7 @@ export class User {
   lastname: string;
   email: string;
   phoneNumber: string;
+  preferredOrderIdSuffix: string;
 
   constructor(
     sub: string,
@@ -15,6 +16,7 @@ export class User {
     lastname: string,
     email: string,
     phoneNumber: string,
+    preferredOrderIdSuffix: string,
   ) {
     this.sub = sub;
     this.companyId = companyId;
@@ -22,6 +24,7 @@ export class User {
     this.lastname = lastname;
     this.email = email;
     this.phoneNumber = phoneNumber;
+    this.preferredOrderIdSuffix = preferredOrderIdSuffix;
   }
 
   toCreator = (): SpeditionOrder['creator'] => ({

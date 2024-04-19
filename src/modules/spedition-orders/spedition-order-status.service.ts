@@ -4,6 +4,7 @@ import {
 } from './entities/spedition-order.entity';
 import { Injectable } from '@nestjs/common';
 import { NewOrderIdService } from './new-order-id.service';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SpeditionOrderStatusService {
@@ -12,12 +13,13 @@ export class SpeditionOrderStatusService {
   async handleStatusChange(
     speditionOrder: SpeditionOrder,
     toStatus: SpeditionOrderStatus,
+    user: User,
   ): Promise<SpeditionOrder> {
     const currentStatus = speditionOrder.status;
 
     if (toStatus === 'CREATED' && currentStatus === 'DRAFT') {
       const newOrderId = await this.newOrderIdService.createNewOrderId(
-        speditionOrder.companyId,
+        user,
         new Date(speditionOrder.unloading.date),
       );
 

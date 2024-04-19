@@ -61,9 +61,8 @@ export class SpeditionOrdersController {
     }
 
     return this.speditionOrdersService.createActiveSpeditionOrder(
-      user.companyId,
+      user,
       createSpeditionOrderDto,
-      creator,
     );
   }
 
@@ -95,7 +94,7 @@ export class SpeditionOrdersController {
 
       return this.speditionOrdersService.changeStatus(
         id,
-        user.companyId,
+        user,
         patchSpeditionOrderDto.status,
       );
     }

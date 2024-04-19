@@ -10,6 +10,7 @@ export class DynamoDBUserDto extends Item {
     public lastname: string,
     public email: string,
     public phoneNumber: string,
+    public preferredOrderIdSuffix: string,
   ) {
     super();
   }
@@ -39,6 +40,7 @@ export class DynamoDBUserDto extends Item {
       lastname: { S: this.lastname },
       email: { S: this.email },
       phoneNumber: { S: this.phoneNumber },
+      preferredOrderIdSuffix: { S: this.preferredOrderIdSuffix },
     };
   }
 
@@ -50,6 +52,7 @@ export class DynamoDBUserDto extends Item {
       this.lastname,
       this.email,
       this.phoneNumber,
+      this.preferredOrderIdSuffix,
     );
 
   static fromDomain = (user: User): DynamoDBUserDto => {
@@ -60,6 +63,7 @@ export class DynamoDBUserDto extends Item {
       user.lastname,
       user.email,
       user.phoneNumber,
+      user.preferredOrderIdSuffix,
     );
   };
 
@@ -71,6 +75,7 @@ export class DynamoDBUserDto extends Item {
       userItem.lastname.S,
       userItem.email.S,
       userItem.phoneNumber.S,
+      userItem.preferredOrderIdSuffix.S,
     );
   };
 }
