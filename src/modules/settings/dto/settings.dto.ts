@@ -1,5 +1,4 @@
-export type Settings = {
-  companyId: string;
+export type SettingsDto = {
   speditionOrderPolicy: {
     [key in 'payments' | 'contractor' | 'driver']: {
       name: string;

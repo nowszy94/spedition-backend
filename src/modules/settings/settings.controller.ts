@@ -1,29 +1,48 @@
-import { Body, Controller, Get, Logger, Put } from '@nestjs/common';
-import { Settings } from './entities/settings.entity';
-import { mockSettings } from './settings-mock-data';
+import { Body, Controller, Get, Logger, Patch } from '@nestjs/common';
+import { UserDecorator } from '../../auth/cognito-user-email.decorator';
+import { User } from '../users/entities/user.entity';
+import {
+  PatchPolicySettingsDto,
+  PatchSettingsDto,
+} from './dto/patch-settings.dto';
+import { SettingsService } from './settings.service';
+import { SettingsDto } from './dto/settings.dto';
 
 @Controller('settings')
 export class SettingsController {
   private readonly logger = new Logger(SettingsController.name);
 
-  private settings: Settings;
-
-  constructor() {
-    this.settings = mockSettings;
-  }
+  constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  find() {
+  async find(@UserDecorator() user: User): Promise<SettingsDto> {
     this.logger.debug(`Called get settings endpoint`);
-    return this.settings;
+
+    const settings = await this.settingsService.findAll(user.companyId);
+
+    return {
+      speditionOrderPolicy: settings.speditionOrderPolicy,
+    };
   }
 
-  @Put()
-  update(@Body() updatedSettings: Settings) {
+  @Patch()
+  async update(
+    @Body() updatedSettings: PatchSettingsDto,
+    @UserDecorator() user: User,
+  ) {
     this.logger.debug(`Called put settings endpoint`);
 
-    this.settings = updatedSettings;
-
-    return updatedSettings;
+    if (this.isPolicyPatch(updatedSettings)) {
+      await this.settingsService.changePolicy(
+        user.companyId,
+        updatedSettings.speditionOrderPolicy,
+      );
+    }
   }
+
+  private isPolicyPatch = (
+    dto: PatchSettingsDto,
+  ): dto is PatchPolicySettingsDto => {
+    return 'speditionOrderPolicy' in dto;
+  };
 }
