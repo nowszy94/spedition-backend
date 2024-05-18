@@ -45,4 +45,5 @@ export type UpdateSpeditionOrderDto = {
   };
   status: SpeditionOrderStatus;
   additionalInfo: string;
+  comment: string;
 };

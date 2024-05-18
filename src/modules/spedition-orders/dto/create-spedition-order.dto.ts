@@ -45,6 +45,7 @@ export class CreateSpeditionOrderDto {
     paymentDays: number;
   };
   additionalInfo: string;
+  comment: string;
 
   static toNewEntity = (
     companyId: string,
@@ -67,5 +68,6 @@ export class CreateSpeditionOrderDto {
     unloading: dto.unloading,
     freight: dto.freight,
     additionalInfo: dto.additionalInfo,
+    comment: dto.comment,
   });
 }

@@ -68,4 +68,5 @@ export interface SpeditionOrder {
   };
   status: SpeditionOrderStatus;
   additionalInfo: string;
+  comment: string;
 }

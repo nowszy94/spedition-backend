@@ -144,6 +144,7 @@ export class SpeditionOrdersService {
         nip: contractor.nip,
         contact: selectedContact,
       },
+      comment: updateSpeditionOrderDto.comment,
     };
 
     await this.speditionOrderRepository.updateSpeditionOrder(

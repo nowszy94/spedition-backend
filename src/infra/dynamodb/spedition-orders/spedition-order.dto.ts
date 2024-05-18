@@ -72,6 +72,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
   };
   public status: DynamoDBSpeditionOrderStatus;
   public additionalInfo: string;
+  public comment: string;
 
   constructor() {
     super();
@@ -173,6 +174,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
       },
       status: { S: this.status },
       additionalInfo: { S: this.additionalInfo },
+      comment: { S: this.comment || '' },
     };
   }
 
@@ -191,6 +193,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
     freight: this.freight,
     status: this.status,
     additionalInfo: this.additionalInfo,
+    comment: this.comment,
   });
 
   static fromDomain = (
@@ -211,79 +214,83 @@ export class DynamoDBSpeditionOrderDto extends Item {
     dto.freight = speditionOrder.freight;
     dto.status = speditionOrder.status;
     dto.additionalInfo = speditionOrder.additionalInfo;
+    dto.comment = speditionOrder.comment;
 
     return dto;
   };
 
   static fromItem = (
-    contractorItem: AttributeMap,
+    speditionOrderItem: AttributeMap,
   ): DynamoDBSpeditionOrderDto => {
     const dto = new DynamoDBSpeditionOrderDto();
 
-    const loadingDate = contractorItem.loading.M.date.N;
-    const unloadingDate = contractorItem.unloading.M.date.N;
+    const loadingDate = speditionOrderItem.loading.M.date.N;
+    const unloadingDate = speditionOrderItem.unloading.M.date.N;
 
-    dto.id = contractorItem.id.S;
-    dto.orderId = contractorItem.orderId.S;
-    dto.creationDate = Number(contractorItem.creationDate.N);
-    dto.companyId = contractorItem.companyId.S;
+    dto.id = speditionOrderItem.id.S;
+    dto.orderId = speditionOrderItem.orderId.S;
+    dto.creationDate = Number(speditionOrderItem.creationDate.N);
+    dto.companyId = speditionOrderItem.companyId.S;
     dto.creator = {
-      id: contractorItem.creator.M.id.S,
-      name: contractorItem.creator.M.name.S,
-      email: contractorItem.creator.M.email.S,
-      phoneNumber: contractorItem.creator.M.phoneNumber.S,
+      id: speditionOrderItem.creator.M.id.S,
+      name: speditionOrderItem.creator.M.name.S,
+      email: speditionOrderItem.creator.M.email.S,
+      phoneNumber: speditionOrderItem.creator.M.phoneNumber.S,
     };
-    dto.contractor = contractorItem.contractor && {
-      id: contractorItem.contractor.M.id.S,
-      name: contractorItem.contractor.M.name.S,
-      nip: contractorItem.contractor.M.nip.S,
-      address: contractorItem.contractor.M.address.S,
-      phoneNumber: contractorItem.contractor.M.phoneNumber.S,
-      email: contractorItem.contractor.M.email.S,
-      contact: contractorItem.contractor.M.contact && {
-        id: contractorItem.contractor.M.contact.M.id.S,
-        name: contractorItem.contractor.M.contact.M.name.S,
-        phoneNumber: contractorItem.contractor.M.contact.M.phoneNumber.S,
-        email: contractorItem.contractor.M.contact.M.email.S,
+    dto.contractor = speditionOrderItem.contractor && {
+      id: speditionOrderItem.contractor.M.id.S,
+      name: speditionOrderItem.contractor.M.name.S,
+      nip: speditionOrderItem.contractor.M.nip.S,
+      address: speditionOrderItem.contractor.M.address.S,
+      phoneNumber: speditionOrderItem.contractor.M.phoneNumber.S,
+      email: speditionOrderItem.contractor.M.email.S,
+      contact: speditionOrderItem.contractor.M.contact && {
+        id: speditionOrderItem.contractor.M.contact.M.id.S,
+        name: speditionOrderItem.contractor.M.contact.M.name.S,
+        phoneNumber: speditionOrderItem.contractor.M.contact.M.phoneNumber.S,
+        email: speditionOrderItem.contractor.M.contact.M.email.S,
       },
     };
     dto.driver = {
-      name: contractorItem.driver.M.name.S,
-      phoneNumber: contractorItem.driver.M.phoneNumber.S,
-      identityCardNumber: contractorItem.driver.M.identityCardNumber.S,
+      name: speditionOrderItem.driver.M.name.S,
+      phoneNumber: speditionOrderItem.driver.M.phoneNumber.S,
+      identityCardNumber: speditionOrderItem.driver.M.identityCardNumber.S,
     };
     dto.vehicle = {
-      carLicensePlate: contractorItem.vehicle.M.carLicensePlate.S,
-      trailerLicensePlate: contractorItem.vehicle.M.trailerLicensePlate.S,
+      carLicensePlate: speditionOrderItem.vehicle.M.carLicensePlate.S,
+      trailerLicensePlate: speditionOrderItem.vehicle.M.trailerLicensePlate.S,
     };
     dto.loading = {
       date: Number(loadingDate),
-      endDate: Number(contractorItem.loading.M.endDate?.N || loadingDate),
-      time: contractorItem.loading.M.time?.S || '',
-      address: contractorItem.loading.M.address.S,
-      loadingNumber: contractorItem.loading.M.loadingNumber.S,
-      additionalInfo: contractorItem.loading.M.additionalInfo.S,
+      endDate: Number(speditionOrderItem.loading.M.endDate?.N || loadingDate),
+      time: speditionOrderItem.loading.M.time?.S || '',
+      address: speditionOrderItem.loading.M.address.S,
+      loadingNumber: speditionOrderItem.loading.M.loadingNumber.S,
+      additionalInfo: speditionOrderItem.loading.M.additionalInfo.S,
     };
     dto.unloading = {
       date: Number(unloadingDate),
-      endDate: Number(contractorItem.unloading.M.endDate?.N || unloadingDate),
-      time: contractorItem.unloading.M.time?.S || '',
-      address: contractorItem.unloading.M.address.S,
-      unloadingNumber: contractorItem.unloading.M.unloadingNumber.S,
-      additionalInfo: contractorItem.unloading.M.additionalInfo.S,
+      endDate: Number(
+        speditionOrderItem.unloading.M.endDate?.N || unloadingDate,
+      ),
+      time: speditionOrderItem.unloading.M.time?.S || '',
+      address: speditionOrderItem.unloading.M.address.S,
+      unloadingNumber: speditionOrderItem.unloading.M.unloadingNumber.S,
+      additionalInfo: speditionOrderItem.unloading.M.additionalInfo.S,
     };
-    dto.loadDetails = contractorItem.loadDetails.L.map((item) => ({
+    dto.loadDetails = speditionOrderItem.loadDetails.L.map((item) => ({
       name: item.M.name.S,
       value: item.M.value.S,
     }));
     dto.freight = {
-      value: contractorItem.freight.M.value.S,
-      vatRate: Number(contractorItem.freight.M.vatRate.N),
-      currency: contractorItem.freight.M.currency.S as 'EUR' | 'PLN',
-      paymentDays: Number(contractorItem.freight.M.paymentDays.N),
+      value: speditionOrderItem.freight.M.value.S,
+      vatRate: Number(speditionOrderItem.freight.M.vatRate.N),
+      currency: speditionOrderItem.freight.M.currency.S as 'EUR' | 'PLN',
+      paymentDays: Number(speditionOrderItem.freight.M.paymentDays.N),
     };
-    dto.status = contractorItem.status.S as DynamoDBSpeditionOrderStatus;
-    dto.additionalInfo = contractorItem.additionalInfo.S;
+    dto.status = speditionOrderItem.status.S as DynamoDBSpeditionOrderStatus;
+    dto.additionalInfo = speditionOrderItem.additionalInfo.S;
+    dto.comment = speditionOrderItem.comment?.S || '';
 
     return dto;
   };
