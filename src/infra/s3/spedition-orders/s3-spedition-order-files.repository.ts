@@ -6,6 +6,8 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
 import { SpeditionOrderFilesRepository } from '../../../modules/spedition-orders/spedition-order-files.repository';
 import { SpeditionOrderFileEntity } from '../../../modules/spedition-orders/entities/spedition-order-file.entity';
 
@@ -33,6 +35,7 @@ export class S3SpeditionOrderFilesRepository
         Bucket: BUCKET_NAME,
         Key: `${this.buildSpeditionOrderFilesPath(companyId, speditionOrderId)}/${file.originalname}`,
         Body: file.buffer,
+        ContentType: file.mimetype,
       });
 
       this.s3Client.send(uploadCommand);
@@ -77,6 +80,21 @@ export class S3SpeditionOrderFilesRepository
     const result = await this.s3Client.send(getObjectCommand);
 
     return result.Body;
+  }
+
+  async getFilePresignedUrlByFilename(
+    companyId: string,
+    speditionOrderId: string,
+    filename: string,
+  ) {
+    const getObjectCommand = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: `${this.buildSpeditionOrderFilesPath(companyId, speditionOrderId)}/${filename}`,
+    });
+
+    return await getSignedUrl(this.s3Client, getObjectCommand, {
+      expiresIn: 15 * 60, // 15 minutes
+    });
   }
 
   async removeFile(

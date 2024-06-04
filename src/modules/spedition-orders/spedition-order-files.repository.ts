@@ -12,6 +12,12 @@ export interface SpeditionOrderFilesRepository {
     filename: string,
   ): Promise<any>;
 
+  getFilePresignedUrlByFilename(
+    companyId: string,
+    speditionOrderId: string,
+    filename: string,
+  ): Promise<string>;
+
   addFiles(
     companyId: string,
     speditionOrderId: string,

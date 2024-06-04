@@ -95,4 +95,26 @@ export class SpeditionOrderFilesController {
       filename,
     );
   }
+
+  @Get('/:filename/presigned-url')
+  async getSpeditionOrderFilePresignedUrl(
+    @Param('id') speditionOrderId: string,
+    @Param('filename') filename: string,
+    @UserDecorator() user: User,
+  ) {
+    this.logger.debug(
+      `Called get presigned url for file(${filename}) of spedition order(${speditionOrderId}) endpoint`,
+    );
+
+    const filePresignedUrl =
+      await this.speditionOrderFilesService.getSpeditionOrderFilePresignedUrl(
+        user.companyId,
+        speditionOrderId,
+        filename,
+      );
+
+    return {
+      url: filePresignedUrl,
+    };
+  }
 }

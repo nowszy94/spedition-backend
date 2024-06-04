@@ -86,6 +86,27 @@ export class SpeditionOrderFilesService {
     );
   }
 
+  async getSpeditionOrderFilePresignedUrl(
+    companyId: string,
+    speditionOrderId: string,
+    filename: string,
+  ): Promise<string> {
+    const speditionOrder =
+      await this.speditionOrderRepository.findSpeditionOrderById(
+        companyId,
+        speditionOrderId,
+      );
+    if (!speditionOrder) {
+      return null;
+    }
+
+    return this.speditionOrderFilesRepository.getFilePresignedUrlByFilename(
+      companyId,
+      speditionOrderId,
+      filename,
+    );
+  }
+
   async removeSpeditionOrderFile(
     companyId: string,
     speditionOrderId: string,
