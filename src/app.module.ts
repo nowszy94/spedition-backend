@@ -18,12 +18,15 @@ import { DynamoDBSpeditionOrderRepository } from './infra/dynamodb/spedition-ord
 import { SettingsService } from './modules/settings/settings.service';
 import { SpeditionOrderFilesController } from './modules/spedition-orders/spedition-orders-files.controller';
 import { SpeditionOrderFilesService } from './modules/spedition-orders/spedition-order-files.service';
+import { ContractorFilesController } from './modules/contractors/contractor-files.controller';
+import { ContractorFilesService } from './modules/contractors/contractor-files.service';
 
 @Module({
   imports: [],
   controllers: [
     AppController,
     ContractorsController,
+    ContractorFilesController,
     SpeditionOrdersFeedController,
     SpeditionOrderFilesController,
     SpeditionOrdersController,
@@ -34,6 +37,7 @@ import { SpeditionOrderFilesService } from './modules/spedition-orders/spedition
   providers: [
     AppService,
     ContractorsService,
+    ContractorFilesService,
     DynamoDBSpeditionOrderRepository,
     NewOrderIdService,
     SettingsService,

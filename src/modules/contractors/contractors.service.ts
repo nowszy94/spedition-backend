@@ -25,7 +25,7 @@ export class ContractorsService {
   }
 
   async findOne(companyId: string, contractorId: string) {
-    return await this.contractorsRepository.findContractor(
+    return await this.contractorsRepository.findContractorById(
       companyId,
       contractorId,
     );

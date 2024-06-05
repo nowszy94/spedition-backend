@@ -33,7 +33,7 @@ export class DynamoDBContractorsRepository implements ContractorsRepository {
     );
   }
 
-  async findContractor(
+  async findContractorById(
     companyId: string,
     contractorId: string,
   ): Promise<Contractor | null> {
