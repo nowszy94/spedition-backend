@@ -28,16 +28,22 @@ export class S3ContractorFilesRepository implements ContractorFilesRepository {
     contractorId: string,
     files: Array<Express.Multer.File>,
   ) {
-    files.forEach((file) => {
-      const uploadCommand = new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: `${this.buildContractorFilesPath(companyId, contractorId)}/${file.originalname}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      });
+    await Promise.all(
+      files.map(
+        (file) =>
+          new Promise(async (resolve) => {
+            const uploadCommand = new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: `${this.buildContractorFilesPath(companyId, contractorId)}/${file.originalname}`,
+              Body: file.buffer,
+              ContentType: file.mimetype,
+            });
 
-      this.s3Client.send(uploadCommand);
-    });
+            await this.s3Client.send(uploadCommand);
+            resolve(true);
+          }),
+      ),
+    );
   }
 
   async listFilesByContractorId(

@@ -30,16 +30,21 @@ export class S3SpeditionOrderFilesRepository
     speditionOrderId: string,
     files: Array<Express.Multer.File>,
   ) {
-    files.forEach((file) => {
-      const uploadCommand = new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: `${this.buildSpeditionOrderFilesPath(companyId, speditionOrderId)}/${file.originalname}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      });
-
-      this.s3Client.send(uploadCommand);
-    });
+    await Promise.all(
+      files.map(
+        (file) =>
+          new Promise(async (resolve) => {
+            const uploadCommand = new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: `${this.buildSpeditionOrderFilesPath(companyId, speditionOrderId)}/${file.originalname}`,
+              Body: file.buffer,
+              ContentType: file.mimetype,
+            });
+            await this.s3Client.send(uploadCommand);
+            resolve(true);
+          }),
+      ),
+    );
   }
 
   async listFilesBySpeditionOrderId(
