@@ -7,6 +7,7 @@ export class Contractor {
   email: string;
   address: string;
   additionalInfo: string;
+  blacklist: boolean;
   contacts: Array<{
     id: string;
     name: string;

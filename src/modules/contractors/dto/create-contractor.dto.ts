@@ -22,5 +22,6 @@ export class CreateContractorDto {
       ...dtoContact,
       id: ulid(),
     })),
+    blacklist: false,
   });
 }

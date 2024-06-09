@@ -1,6 +1,4 @@
 export class UpdateContractorDto {
-  id: string;
-  companyId: string;
   name: string;
   phoneNumber: string;
   nip: string;

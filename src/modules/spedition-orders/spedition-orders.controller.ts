@@ -83,7 +83,7 @@ export class SpeditionOrdersController {
   }
 
   @Patch(':id')
-  changeStatus(
+  patch(
     @Param('id') id: string,
     @Body() patchSpeditionOrderDto: PatchSpeditionOrderDto,
     @UserDecorator() user: User,

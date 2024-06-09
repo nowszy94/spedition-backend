@@ -36,14 +36,40 @@ export class ContractorsService {
     id: string,
     updateContractorDto: UpdateContractorDto,
   ) {
-    return await this.contractorsRepository.updateContractor(
+    const foundContractor = await this.contractorsRepository.findContractorById(
       companyId,
       id,
-      updateContractorDto,
     );
+
+    if (!foundContractor) {
+      return null;
+    }
+
+    return await this.contractorsRepository.updateContractor(companyId, id, {
+      ...updateContractorDto,
+      id: foundContractor.id,
+      companyId: foundContractor.companyId,
+      blacklist: foundContractor.blacklist,
+    });
   }
 
   async remove(companyId: string, id: string) {
     await this.contractorsRepository.deleteContractor(companyId, id);
+  }
+
+  async changeBlacklist(companyId: string, id: string, blacklist: boolean) {
+    const foundContractor = await this.contractorsRepository.findContractorById(
+      companyId,
+      id,
+    );
+
+    if (!foundContractor) {
+      return null;
+    }
+
+    return await this.contractorsRepository.updateContractor(companyId, id, {
+      ...foundContractor,
+      blacklist,
+    });
   }
 }

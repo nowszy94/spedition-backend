@@ -5,6 +5,7 @@ import {
   Get,
   Logger,
   Param,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
@@ -13,6 +14,10 @@ import { CreateContractorDto } from './dto/create-contractor.dto';
 import { UpdateContractorDto } from './dto/update-contractor.dto';
 import { UserDecorator } from '../../auth/cognito-user-email.decorator';
 import { User } from '../users/entities/user.entity';
+import {
+  PatchContractorBlacklistDto,
+  PatchContractorDto,
+} from './dto/patch-contractor.dto';
 
 @Controller('contractors')
 export class ContractorsController {
@@ -64,4 +69,35 @@ export class ContractorsController {
   remove(@Param('id') id: string, @UserDecorator() user: User) {
     this.contractorsService.remove(user.companyId, id);
   }
+
+  @Patch(':id')
+  patch(
+    @Param('id') id: string,
+    @Body() patchContractorDto: PatchContractorDto,
+    @UserDecorator() user: User,
+  ) {
+    if (this.isBlacklistPatch(patchContractorDto)) {
+      this.logger.debug(
+        `Called patch blacklist contractor endpoint (id: ${id})`,
+      );
+
+      return this.contractorsService.changeBlacklist(
+        user.companyId,
+        id,
+        patchContractorDto.blacklist,
+      );
+    }
+
+    this.logger.debug(
+      `[BUG from frontend] Called unknown patch contractor endpoint (id: ${id})`,
+    );
+
+    return null; // TODO add error to return 400
+  }
+
+  private isBlacklistPatch = (
+    dto: PatchContractorDto,
+  ): dto is PatchContractorBlacklistDto => {
+    return 'blacklist' in dto;
+  };
 }

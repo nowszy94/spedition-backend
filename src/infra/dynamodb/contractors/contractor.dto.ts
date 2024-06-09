@@ -12,6 +12,7 @@ export class DynamoDBContractorDto extends Item {
     public email: string,
     public address: string,
     public additionalInfo: string,
+    public blacklist: boolean,
     public contacts: Array<{
       id: string;
       name: string;
@@ -40,6 +41,7 @@ export class DynamoDBContractorDto extends Item {
       email: { S: this.email },
       address: { S: this.address },
       additionalInfo: { S: this.additionalInfo },
+      blacklist: { BOOL: this.blacklist },
       contacts: {
         L: this.contacts.map((contact) => ({
           M: {
@@ -61,6 +63,7 @@ export class DynamoDBContractorDto extends Item {
     phoneNumber: this.phoneNumber,
     email: this.email,
     address: this.address,
+    blacklist: this.blacklist,
     additionalInfo: this.additionalInfo,
     contacts: this.contacts,
   });
@@ -75,6 +78,7 @@ export class DynamoDBContractorDto extends Item {
       contractor.email,
       contractor.address,
       contractor.additionalInfo,
+      contractor.blacklist,
       contractor.contacts,
     );
   };
@@ -89,6 +93,7 @@ export class DynamoDBContractorDto extends Item {
       contractorItem.email.S,
       contractorItem.address.S,
       contractorItem.additionalInfo.S,
+      contractorItem.blacklist?.BOOL || false,
       contractorItem.contacts.L.map((contact) => ({
         id: contact.M.id.S,
         name: contact.M.name.S,
