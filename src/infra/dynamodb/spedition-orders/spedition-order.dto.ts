@@ -1,5 +1,7 @@
-import { Item } from '../base';
 import { AttributeMap } from 'aws-sdk/clients/dynamodb';
+import * as moment from 'moment';
+
+import { Item } from '../base';
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
 
 type DynamoDBSpeditionOrderStatus =
@@ -86,9 +88,30 @@ export class DynamoDBSpeditionOrderDto extends Item {
     return `SpeditionOrder#${this.id}`;
   }
 
+  private gsiKeys(): Record<string, unknown> {
+    let gsiKeys: Record<string, unknown> = {
+      GSI1PK: { S: `Company#${this.companyId}/SpeditionOrder` },
+      GSI1SK: { S: `Creator#${this.creator.id}` },
+    };
+
+    if (this.orderId) {
+      const unloadingDate = moment(this.unloading.date);
+      const orderMonth = `${unloadingDate.month() + 1}_${unloadingDate.year()}`;
+
+      gsiKeys = {
+        ...gsiKeys,
+        GSI2PK: { S: `Company#${this.companyId}/SpeditionOrder` },
+        GSI2SK: { S: `OrderMonth#${orderMonth}` },
+      };
+    }
+
+    return gsiKeys;
+  }
+
   toItem(): Record<string, unknown> {
     return {
       ...this.keys(),
+      ...this.gsiKeys(),
       id: { S: this.id },
       orderId: { S: this.orderId },
       creationDate: { N: this.creationDate.toString() },
