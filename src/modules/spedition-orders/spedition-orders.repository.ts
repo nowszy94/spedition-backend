@@ -1,14 +1,19 @@
 import { SpeditionOrder } from './entities/spedition-order.entity';
+import { SpeditionOrdersFiltersEntity } from './entities/spedition-orders-filters.entity';
 
 export interface SpeditionOrdersRepository {
-  findAllSpeditionOrders: (companyId: string) => Promise<Array<SpeditionOrder>>;
-  findSpeditionOrderById: (
+  findAll: (companyId: string) => Promise<Array<SpeditionOrder>>;
+
+  findAllByMonthYear: (
     companyId: string,
-    id: string,
-  ) => Promise<SpeditionOrder>;
-  createSpeditionOrder: (order: SpeditionOrder) => Promise<SpeditionOrder>;
-  updateSpeditionOrder: (
-    updatedOrder: SpeditionOrder,
-  ) => Promise<SpeditionOrder | null>;
-  deleteSpeditionOrder: (companyId: string, id: string) => Promise<void>;
+    monthYearFilters: SpeditionOrdersFiltersEntity['orderMonthYear'],
+  ) => Promise<Array<SpeditionOrder>>;
+
+  findById: (companyId: string, id: string) => Promise<SpeditionOrder>;
+
+  create: (order: SpeditionOrder) => Promise<SpeditionOrder>;
+
+  update: (updatedOrder: SpeditionOrder) => Promise<SpeditionOrder | null>;
+
+  delete: (companyId: string, id: string) => Promise<void>;
 }

@@ -19,7 +19,7 @@ export class NewOrderIdService {
     const forMonth = forDate.getMonth();
 
     const orders = (
-      await this.speditionOrderRepository.findAllSpeditionOrders(companyId)
+      await this.speditionOrderRepository.findAll(companyId)
     ).filter(({ status }) => status !== 'DRAFT');
 
     const ordersInRequestedMonth = orders.filter(({ unloading }) => {

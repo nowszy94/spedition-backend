@@ -9,6 +9,7 @@ import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';
 import { User } from '../users/entities/user.entity';
+import { SpeditionOrdersFiltersEntity } from './entities/spedition-orders-filters.entity';
 
 @Injectable()
 export class SpeditionOrdersService {
@@ -23,14 +24,27 @@ export class SpeditionOrdersService {
   }
 
   findAll(companyId: string) {
-    return this.speditionOrderRepository.findAllSpeditionOrders(companyId);
+    return this.speditionOrderRepository.findAll(companyId);
+  }
+
+  findAllByFilters(
+    companyId: string,
+    { orderMonthYear }: SpeditionOrdersFiltersEntity,
+  ) {
+    if (orderMonthYear) {
+      return this.speditionOrderRepository.findAllByMonthYear(
+        companyId,
+        orderMonthYear,
+      );
+    }
+    return [];
   }
 
   async createDraftSpeditionOrder(
-    companyId: string,
+    user: User,
     createSpeditionOrderDto: CreateSpeditionOrderDto,
-    creator: SpeditionOrder['creator'],
   ): Promise<SpeditionOrder> {
+    const companyId = user.companyId;
     const contractorFromDto = createSpeditionOrderDto.contractor;
 
     const contractor: SpeditionOrder['contractor'] | undefined =
@@ -42,6 +56,7 @@ export class SpeditionOrdersService {
           )
         : undefined;
 
+    const creator = user.toCreator();
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(
       companyId,
       createSpeditionOrderDto,
@@ -49,7 +64,7 @@ export class SpeditionOrdersService {
       contractor,
     );
 
-    await this.speditionOrderRepository.createSpeditionOrder({
+    await this.speditionOrderRepository.create({
       ...newSpeditionOrder,
       status: 'DRAFT',
     });
@@ -64,14 +79,14 @@ export class SpeditionOrdersService {
     const creator = user.toCreator();
     const contractorFromDto = createSpeditionOrderDto.contractor;
 
-    const contractor: SpeditionOrder['contractor'] | undefined =
-      contractorFromDto
-        ? await this.getContractorForOrder(
-            user.companyId,
-            contractorFromDto.id,
-            contractorFromDto.contactId,
-          )
-        : undefined;
+    const contractor = contractorFromDto
+      ? await this.getContractorForOrder(
+          user.companyId,
+          contractorFromDto.id,
+          contractorFromDto.contactId,
+        )
+      : undefined;
+
     const newOrderId = await this.newOrderIdService.createNewOrderId(
       user,
       new Date(createSpeditionOrderDto.unloading.date),
@@ -85,7 +100,7 @@ export class SpeditionOrdersService {
       newOrderId,
     );
 
-    await this.speditionOrderRepository.createSpeditionOrder({
+    await this.speditionOrderRepository.create({
       ...newSpeditionOrder,
       status: 'CREATED',
     });
@@ -94,10 +109,7 @@ export class SpeditionOrdersService {
   }
 
   async findOne(id: string, companyId: string) {
-    return await this.speditionOrderRepository.findSpeditionOrderById(
-      companyId,
-      id,
-    );
+    return await this.speditionOrderRepository.findById(companyId, id);
   }
 
   async update(
@@ -105,8 +117,10 @@ export class SpeditionOrdersService {
     companyId: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
   ): Promise<SpeditionOrder | null> {
-    const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      id,
+    );
 
     if (!foundSpeditionOrder) {
       return null;
@@ -147,9 +161,7 @@ export class SpeditionOrdersService {
       comment: updateSpeditionOrderDto.comment,
     };
 
-    await this.speditionOrderRepository.updateSpeditionOrder(
-      updatedSpeditionOrder,
-    );
+    await this.speditionOrderRepository.update(updatedSpeditionOrder);
 
     return updatedSpeditionOrder;
   }
@@ -159,11 +171,10 @@ export class SpeditionOrdersService {
     user: User,
     newStatus: SpeditionOrder['status'],
   ): Promise<SpeditionOrder | null> {
-    const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        user.companyId,
-        id,
-      );
+    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+      user.companyId,
+      id,
+    );
 
     if (!foundSpeditionOrder) {
       return null;
@@ -176,9 +187,7 @@ export class SpeditionOrdersService {
         user,
       );
 
-    await this.speditionOrderRepository.updateSpeditionOrder(
-      updatedSpeditionOrder,
-    );
+    await this.speditionOrderRepository.update(updatedSpeditionOrder);
 
     return updatedSpeditionOrder;
   }
@@ -188,8 +197,10 @@ export class SpeditionOrdersService {
     companyId: string,
     newOrderId: SpeditionOrder['orderId'],
   ) {
-    const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      id,
+    );
 
     if (!foundSpeditionOrder) {
       return null;
@@ -200,9 +211,7 @@ export class SpeditionOrdersService {
       orderId: newOrderId,
     }; // TODO add validation if there's already order with such id
 
-    await this.speditionOrderRepository.updateSpeditionOrder(
-      updatedSpeditionOrder,
-    );
+    await this.speditionOrderRepository.update(updatedSpeditionOrder);
   }
 
   async changeContractor(
@@ -213,8 +222,10 @@ export class SpeditionOrdersService {
       contactId?: string;
     },
   ) {
-    const foundSpeditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(companyId, id);
+    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      id,
+    );
 
     if (!foundSpeditionOrder) {
       return null;
@@ -244,13 +255,11 @@ export class SpeditionOrdersService {
       },
     };
 
-    await this.speditionOrderRepository.updateSpeditionOrder(
-      updatedSpeditionOrder,
-    );
+    await this.speditionOrderRepository.update(updatedSpeditionOrder);
   }
 
   async remove(id: string, companyId: string) {
-    await this.speditionOrderRepository.deleteSpeditionOrder(companyId, id);
+    await this.speditionOrderRepository.delete(companyId, id);
   }
 
   private getContractorForOrder = async (

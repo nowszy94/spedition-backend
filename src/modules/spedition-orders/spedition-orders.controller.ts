@@ -22,6 +22,10 @@ import {
 } from './dto/patch-spedition-order.dto';
 import { UserDecorator } from '../../auth/cognito-user-email.decorator';
 import { User } from '../users/entities/user.entity';
+import {
+  mapToSpeditionOrdersFilters,
+  SpeditionOrderFilterRequestDto,
+} from './dto/spedition-order-filters.dto';
 
 @Controller('spedition-orders')
 export class SpeditionOrdersController {
@@ -32,8 +36,19 @@ export class SpeditionOrdersController {
   ) {}
 
   @Get()
-  findAll(@UserDecorator() user: User) {
+  findAll(
+    @UserDecorator() user: User,
+    @Query() filtersDto: SpeditionOrderFilterRequestDto,
+  ) {
     this.logger.debug('Called findAll spedition-orders endpoint');
+    const filters = mapToSpeditionOrdersFilters(filtersDto);
+
+    if (filters) {
+      return this.speditionOrdersService.findAllByFilters(user.companyId, {
+        orderMonthYear: filters.orderMonthYear,
+      });
+    }
+
     return this.speditionOrdersService.findAll(user.companyId);
   }
 
@@ -51,13 +66,10 @@ export class SpeditionOrdersController {
   ) {
     this.logger.debug('Called create spedition-orders endpoint');
 
-    const creator = user.toCreator();
-
     if (status === 'DRAFT') {
       return this.speditionOrdersService.createDraftSpeditionOrder(
-        user.companyId,
+        user,
         createSpeditionOrderDto,
-        creator,
       );
     }
 

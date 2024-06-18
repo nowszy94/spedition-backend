@@ -109,3 +109,7 @@ Content-Type: application/json
 ### Spedition orders feed
 GET localhost/spedition-orders-feed
 Authorization: token
+
+###
+GET localhost/spedition-orders?orderYear=2024&orderMonth=6
+Authorization: token

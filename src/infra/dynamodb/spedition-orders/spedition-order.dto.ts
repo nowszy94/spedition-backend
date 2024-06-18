@@ -3,6 +3,7 @@ import * as moment from 'moment';
 
 import { Item } from '../base';
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
+import { buildOrderMonthYear } from './build-order-month-year';
 
 type DynamoDBSpeditionOrderStatus =
   | 'DRAFT'
@@ -90,18 +91,29 @@ export class DynamoDBSpeditionOrderDto extends Item {
 
   private gsiKeys(): Record<string, unknown> {
     let gsiKeys: Record<string, unknown> = {
-      GSI1PK: { S: `Company#${this.companyId}/SpeditionOrder` },
-      GSI1SK: { S: `Creator#${this.creator.id}` },
+      GSI1PK: {
+        S: `Company#${this.companyId}/SpeditionOrderCreator#${this.creator.id}`,
+      },
+      GSI1SK: {
+        S: `SpeditionOrder#${this.id}`,
+      },
     };
 
     if (this.orderId) {
       const unloadingDate = moment(this.unloading.date);
-      const orderMonth = `${unloadingDate.month() + 1}_${unloadingDate.year()}`;
+      const orderMonthYear = buildOrderMonthYear(
+        unloadingDate.month() + 1,
+        unloadingDate.year(),
+      );
 
       gsiKeys = {
         ...gsiKeys,
-        GSI2PK: { S: `Company#${this.companyId}/SpeditionOrder` },
-        GSI2SK: { S: `OrderMonth#${orderMonth}` },
+        GSI2PK: {
+          S: `Company#${this.companyId}/SpeditionOrderMonth#${orderMonthYear}`,
+        },
+        GSI2SK: {
+          S: `SpeditionOrder#${this.id}`,
+        },
       };
     }
 

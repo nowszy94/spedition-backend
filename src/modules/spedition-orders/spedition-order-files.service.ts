@@ -22,11 +22,10 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     files: Array<Express.Multer.File>,
   ) {
-    const speditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        companyId,
-        speditionOrderId,
-      );
+    const speditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
     if (!speditionOrder) {
       return null;
     }
@@ -42,11 +41,10 @@ export class SpeditionOrderFilesService {
     companyId: string,
     speditionOrderId: string,
   ): Promise<Array<SpeditionOrderFileEntity>> {
-    const speditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        companyId,
-        speditionOrderId,
-      );
+    const speditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
     if (!speditionOrder) {
       return null;
     }
@@ -70,11 +68,10 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ) {
-    const speditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        companyId,
-        speditionOrderId,
-      );
+    const speditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
     if (!speditionOrder) {
       return null;
     }
@@ -91,11 +88,10 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ): Promise<string> {
-    const speditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        companyId,
-        speditionOrderId,
-      );
+    const speditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
     if (!speditionOrder) {
       return null;
     }
@@ -112,11 +108,10 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ) {
-    const speditionOrder =
-      await this.speditionOrderRepository.findSpeditionOrderById(
-        companyId,
-        speditionOrderId,
-      );
+    const speditionOrder = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
     if (!speditionOrder) {
       return null;
     }

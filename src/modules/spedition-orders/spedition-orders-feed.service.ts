@@ -29,8 +29,7 @@ export class SpeditionOrdersFeedService {
     this.today = moment();
     this.tomorrow = moment().add(1, 'day');
 
-    const allOrders =
-      await this.speditionOrdersRepository.findAllSpeditionOrders(companyId);
+    const allOrders = await this.speditionOrdersRepository.findAll(companyId);
 
     const initValue: SpeditionOrderFeedResponse = {
       loading: {

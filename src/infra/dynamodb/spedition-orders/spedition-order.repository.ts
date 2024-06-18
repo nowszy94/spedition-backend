@@ -3,6 +3,7 @@ import { DynamoDB } from 'aws-sdk';
 import { SpeditionOrdersRepository } from '../../../modules/spedition-orders/spedition-orders.repository';
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderDto } from './spedition-order.dto';
+import { buildOrderMonthYear } from './build-order-month-year';
 
 const DYNAMODB_TABLE_NAME = 'SpeditionInfrastructureStackDynamoTable';
 
@@ -18,9 +19,7 @@ export class DynamoDBSpeditionOrderRepository
     });
   }
 
-  findAllSpeditionOrders = async (
-    companyId: string,
-  ): Promise<SpeditionOrder[]> => {
+  findAll = async (companyId: string): Promise<SpeditionOrder[]> => {
     const response = await this.dynamoDB
       .query({
         TableName: this.tableName,
@@ -37,7 +36,7 @@ export class DynamoDBSpeditionOrderRepository
     );
   };
 
-  findSpeditionOrderById = async (
+  findById = async (
     companyId: string,
     speditionOrderId: string,
   ): Promise<SpeditionOrder | null> => {
@@ -58,9 +57,7 @@ export class DynamoDBSpeditionOrderRepository
     return DynamoDBSpeditionOrderDto.fromItem(response.Item).toDomain();
   };
 
-  createSpeditionOrder = async (
-    speditionOrder: SpeditionOrder,
-  ): Promise<SpeditionOrder> => {
+  create = async (speditionOrder: SpeditionOrder): Promise<SpeditionOrder> => {
     const newSpeditionOrder =
       DynamoDBSpeditionOrderDto.fromDomain(speditionOrder);
 
@@ -76,7 +73,7 @@ export class DynamoDBSpeditionOrderRepository
     return speditionOrder;
   };
 
-  updateSpeditionOrder = async (
+  update = async (
     speditionOrder: SpeditionOrder,
   ): Promise<SpeditionOrder | null> => {
     const speditionOrderDto =
@@ -93,10 +90,7 @@ export class DynamoDBSpeditionOrderRepository
     return speditionOrder;
   };
 
-  deleteSpeditionOrder = async (
-    companyId: string,
-    speditionId: string,
-  ): Promise<void> => {
+  delete = async (companyId: string, speditionId: string): Promise<void> => {
     const params = {
       TableName: this.tableName,
       Key: {
@@ -106,5 +100,31 @@ export class DynamoDBSpeditionOrderRepository
     };
 
     await this.dynamoDB.deleteItem(params).promise();
+  };
+
+  findAllByMonthYear = async (
+    companyId: string,
+    monthYearFilters: { month: number; year: number },
+  ): Promise<SpeditionOrder[]> => {
+    const monthYear = buildOrderMonthYear(
+      monthYearFilters.month,
+      monthYearFilters.year,
+    );
+
+    const response = await this.dynamoDB
+      .query({
+        TableName: this.tableName,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk',
+        ExpressionAttributeValues: {
+          ':pk': { S: `Company#${companyId}/SpeditionOrderMonth#${monthYear}` },
+        },
+        ScanIndexForward: false,
+      })
+      .promise();
+
+    return response.Items.map((item) =>
+      DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
+    );
   };
 }
