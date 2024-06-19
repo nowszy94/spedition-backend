@@ -44,9 +44,10 @@ export class SpeditionOrdersController {
     const filters = mapToSpeditionOrdersFilters(filtersDto);
 
     if (filters) {
-      return this.speditionOrdersService.findAllByFilters(user.companyId, {
-        orderMonthYear: filters.orderMonthYear,
-      });
+      return this.speditionOrdersService.findAllByFilters(
+        user.companyId,
+        filters,
+      );
     }
 
     return this.speditionOrdersService.findAll(user.companyId);

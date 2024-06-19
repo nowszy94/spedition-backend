@@ -3,6 +3,7 @@ import { SpeditionOrdersFiltersEntity } from '../entities/spedition-orders-filte
 export type SpeditionOrderFilterRequestDto = {
   orderMonth?: number;
   orderYear?: number;
+  creatorId?: string;
 };
 
 export const mapToSpeditionOrdersFilters = (
@@ -16,6 +17,15 @@ export const mapToSpeditionOrdersFilters = (
       orderMonthYear: {
         month: requestFilters.orderMonth,
         year: requestFilters.orderYear,
+      },
+    };
+  }
+
+  if (requestFilters.creatorId) {
+    filters = {
+      ...filters,
+      creator: {
+        id: requestFilters.creatorId,
       },
     };
   }

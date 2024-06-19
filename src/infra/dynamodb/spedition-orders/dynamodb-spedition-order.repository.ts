@@ -127,4 +127,27 @@ export class DynamoDBSpeditionOrderRepository
       DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
     );
   };
+
+  findAllByCreatorId = async (
+    companyId: string,
+    creatorId: string,
+  ): Promise<SpeditionOrder[]> => {
+    const response = await this.dynamoDB
+      .query({
+        TableName: this.tableName,
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'GSI1PK = :pk',
+        ExpressionAttributeValues: {
+          ':pk': {
+            S: `Company#${companyId}/SpeditionOrderCreator#${creatorId}`,
+          },
+        },
+        ScanIndexForward: false,
+      })
+      .promise();
+
+    return response.Items.map((item) =>
+      DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
+    );
+  };
 }

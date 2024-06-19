@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
-import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
+import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { User } from '../users/entities/user.entity';
 
 @Injectable()

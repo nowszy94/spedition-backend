@@ -3,4 +3,7 @@ export type SpeditionOrdersFiltersEntity = {
     month: number;
     year: number;
   };
+  creator?: {
+    id: string;
+  };
 };

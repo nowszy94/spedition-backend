@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Injectable } from '@nestjs/common';
 
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
-import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
+import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { SpeditionOrderFilesRepository } from './spedition-order-files.repository';
 import { S3SpeditionOrderFilesRepository } from '../../infra/s3/spedition-orders/s3-spedition-order-files.repository';
 import { SpeditionOrderFileEntity } from './entities/spedition-order-file.entity';

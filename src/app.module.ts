@@ -14,12 +14,13 @@ import { UsersController } from './modules/users/users.controller';
 import { UserDetailsController } from './modules/users/user-details.controller';
 import { SpeditionOrdersFeedService } from './modules/spedition-orders/spedition-orders-feed.service';
 import { SpeditionOrdersFeedController } from './modules/spedition-orders/spedition-orders-feed.controller';
-import { DynamoDBSpeditionOrderRepository } from './infra/dynamodb/spedition-orders/spedition-order.repository';
+import { DynamoDBSpeditionOrderRepository } from './infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { SettingsService } from './modules/settings/settings.service';
 import { SpeditionOrderFilesController } from './modules/spedition-orders/spedition-orders-files.controller';
 import { SpeditionOrderFilesService } from './modules/spedition-orders/spedition-order-files.service';
 import { ContractorFilesController } from './modules/contractors/contractor-files.controller';
 import { ContractorFilesService } from './modules/contractors/contractor-files.service';
+import { RefreshSpeditionOrdersService } from './modules/spedition-orders/refresh-spedition-orders.service';
 
 @Module({
   imports: [],
@@ -40,6 +41,7 @@ import { ContractorFilesService } from './modules/contractors/contractor-files.s
     ContractorFilesService,
     DynamoDBSpeditionOrderRepository,
     NewOrderIdService,
+    RefreshSpeditionOrdersService,
     SettingsService,
     SpeditionOrdersFeedService,
     SpeditionOrderFilesService,

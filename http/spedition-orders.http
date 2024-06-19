@@ -113,3 +113,7 @@ Authorization: token
 ###
 GET localhost/spedition-orders?orderYear=2024&orderMonth=6
 Authorization: token
+
+###
+POST localhost/spedition-orders-refresh
+Authorization: token

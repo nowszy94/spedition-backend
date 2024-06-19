@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import { SpeditionOrder } from './entities/spedition-order.entity';
 import { ContractorsService } from '../contractors/contractors.service';
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
-import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/spedition-order.repository';
+import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';
 import { User } from '../users/entities/user.entity';
@@ -13,6 +13,7 @@ import { SpeditionOrdersFiltersEntity } from './entities/spedition-orders-filter
 
 @Injectable()
 export class SpeditionOrdersService {
+  private readonly logger = new Logger(SpeditionOrdersService.name);
   private readonly speditionOrderRepository: SpeditionOrdersRepository;
 
   constructor(
@@ -27,18 +28,64 @@ export class SpeditionOrdersService {
     return this.speditionOrderRepository.findAll(companyId);
   }
 
-  findAllByFilters(
+  async findAllByFilters(
     companyId: string,
-    { orderMonthYear }: SpeditionOrdersFiltersEntity,
+    filters: SpeditionOrdersFiltersEntity,
   ) {
+    const { orderMonthYear, creator } = filters;
+    const promises: Array<Promise<Array<SpeditionOrder>>> = [];
+
     if (orderMonthYear) {
-      return this.speditionOrderRepository.findAllByMonthYear(
-        companyId,
-        orderMonthYear,
+      promises.push(
+        this.speditionOrderRepository.findAllByMonthYear(
+          companyId,
+          orderMonthYear,
+        ),
       );
     }
-    return [];
+    if (creator) {
+      promises.push(
+        this.speditionOrderRepository.findAllByCreatorId(companyId, creator.id),
+      );
+    }
+
+    this.logger.debug(
+      `Calling ${promises.length} queries to filter by ${JSON.stringify(filters)} in company ${companyId}`,
+    );
+
+    const filteredOrders = await Promise.all(promises);
+
+    return this.mergeSpeditionOrders(filteredOrders);
   }
+
+  private mergeSpeditionOrders = (
+    speditionOrders: Array<Array<SpeditionOrder>>,
+  ) => {
+    if (speditionOrders.length === 1) {
+      return speditionOrders[0];
+    }
+
+    const sortedBySize = speditionOrders.sort((a, b) => a.length - b.length);
+    const shortestList = sortedBySize[0];
+
+    const [shortestSet, ...longerSets] = sortedBySize
+      .map((list) => list.map((item) => item.id))
+      .map((list) => new Set(list));
+
+    const result: Array<SpeditionOrder> = [];
+
+    shortestSet.forEach((speditionOrderId) => {
+      if (longerSets.every((longerSet) => longerSet.has(speditionOrderId))) {
+        result.push(
+          shortestList.find(
+            (speditionOrder) => speditionOrderId === speditionOrder.id,
+          ),
+        );
+      }
+    });
+
+    return result;
+  };
 
   async createDraftSpeditionOrder(
     user: User,
