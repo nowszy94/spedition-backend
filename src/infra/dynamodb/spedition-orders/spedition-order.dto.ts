@@ -1,5 +1,5 @@
 import { AttributeMap } from 'aws-sdk/clients/dynamodb';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Item } from '../base';
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';

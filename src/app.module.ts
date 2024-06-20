@@ -21,6 +21,7 @@ import { SpeditionOrderFilesService } from './modules/spedition-orders/spedition
 import { ContractorFilesController } from './modules/contractors/contractor-files.controller';
 import { ContractorFilesService } from './modules/contractors/contractor-files.service';
 import { RefreshSpeditionOrdersService } from './modules/spedition-orders/refresh-spedition-orders.service';
+import { SpeditionOrdersSearchService } from './modules/spedition-orders/spedition-orders-search.service';
 
 @Module({
   imports: [],
@@ -45,6 +46,7 @@ import { RefreshSpeditionOrdersService } from './modules/spedition-orders/refres
     SettingsService,
     SpeditionOrdersFeedService,
     SpeditionOrderFilesService,
+    SpeditionOrdersSearchService,
     SpeditionOrdersService,
     SpeditionOrderStatusService,
     UsersService,

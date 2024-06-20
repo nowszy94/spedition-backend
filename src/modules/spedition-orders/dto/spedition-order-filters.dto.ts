@@ -4,6 +4,7 @@ export type SpeditionOrderFilterRequestDto = {
   orderMonth?: number;
   orderYear?: number;
   creatorId?: string;
+  query?: string;
 };
 
 export const mapToSpeditionOrdersFilters = (

@@ -26,6 +26,8 @@ import {
   mapToSpeditionOrdersFilters,
   SpeditionOrderFilterRequestDto,
 } from './dto/spedition-order-filters.dto';
+import { SpeditionOrder } from './entities/spedition-order.entity';
+import { SpeditionOrdersSearchService } from './spedition-orders-search.service';
 
 @Controller('spedition-orders')
 export class SpeditionOrdersController {
@@ -33,24 +35,39 @@ export class SpeditionOrdersController {
 
   constructor(
     private readonly speditionOrdersService: SpeditionOrdersService,
+    private readonly speditionOrdersSearchService: SpeditionOrdersSearchService,
   ) {}
 
   @Get()
-  findAll(
+  async findAll(
     @UserDecorator() user: User,
     @Query() filtersDto: SpeditionOrderFilterRequestDto,
   ) {
     this.logger.debug('Called findAll spedition-orders endpoint');
     const filters = mapToSpeditionOrdersFilters(filtersDto);
+    const query = filtersDto.query;
+
+    let speditionOrders: Array<SpeditionOrder> = [];
 
     if (filters) {
-      return this.speditionOrdersService.findAllByFilters(
+      speditionOrders = await this.speditionOrdersService.findAllByFilters(
         user.companyId,
         filters,
       );
+    } else {
+      speditionOrders = await this.speditionOrdersService.findAll(
+        user.companyId,
+      );
     }
 
-    return this.speditionOrdersService.findAll(user.companyId);
+    if (query) {
+      return this.speditionOrdersSearchService.searchOrders(
+        speditionOrders,
+        query,
+      );
+    }
+
+    return speditionOrders;
   }
 
   @Get(':id')
