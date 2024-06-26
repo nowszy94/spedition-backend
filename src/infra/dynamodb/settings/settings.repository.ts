@@ -1,7 +1,9 @@
 import { DynamoDB } from 'aws-sdk';
 import { SettingsRepository } from '../../../modules/settings/settings.repository';
 import { Settings } from 'src/modules/settings/entities/settings.entity';
-import { DynamoDBSettingsPolicyDto } from './settings.dto';
+import { DynamoDBPolicyDto } from './dto/settings-policy.dto';
+import { DynamoDBCompanyDetailsDto } from './dto/settings-company-details.dto';
+import { DynamoDBPdfConfigDto } from './dto/settings-pdf-config.dto';
 
 const DYNAMODB_TABLE_NAME = 'SpeditionInfrastructureStackDynamoTable';
 
@@ -15,31 +17,26 @@ export class DynamoDBSettingsRepository implements SettingsRepository {
     });
   }
 
-  async findAll(companyId: string): Promise<Settings> {
-    const response = await this.dynamoDB
-      .getItem({
-        TableName: this.tableName,
-        Key: {
-          PK: { S: `Company#${companyId}/Settings` },
-          SK: { S: 'Policy' },
-        },
-      })
-      .promise();
+  async findById(companyId: string): Promise<Settings> {
+    const [policy, details, pdfConfig] = await Promise.all([
+      DynamoDBPolicyDto.findByCompanyId(this.dynamoDB, companyId),
+      DynamoDBCompanyDetailsDto.findByCompanyId(this.dynamoDB, companyId),
+      DynamoDBPdfConfigDto.findByCompanyId(this.dynamoDB, companyId),
+    ]);
 
-    if (!response.Item) {
-      return null;
-    }
-
-    const settingsDto = DynamoDBSettingsPolicyDto.fromItem(response.Item);
-
-    return settingsDto.toDomain();
+    return {
+      companyId,
+      speditionOrderPolicy: policy,
+      companyDetails: details,
+      additionalPdfConfiguration: pdfConfig,
+    };
   }
 
   async updatePolicy(
     companyId: string,
     updatedSettings: Settings['speditionOrderPolicy'],
   ): Promise<void> {
-    const settingsDto = DynamoDBSettingsPolicyDto.fromDomain(
+    const settingsDto = DynamoDBPolicyDto.fromDomain(
       companyId,
       updatedSettings,
     );

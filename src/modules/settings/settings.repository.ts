@@ -1,7 +1,7 @@
 import { Settings } from './entities/settings.entity';
 
 export interface SettingsRepository {
-  findAll(companyId: string): Promise<Settings>;
+  findById(companyId: string): Promise<Settings>;
 
   updatePolicy(
     companyId: string,

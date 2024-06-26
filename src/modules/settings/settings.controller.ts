@@ -21,11 +21,13 @@ export class SettingsController {
     const settings = await this.settingsService.findAll(user.companyId);
 
     return {
+      companyDetails: settings.companyDetails,
       speditionOrderPolicy: settings.speditionOrderPolicy,
+      additionalPdfConfiguration: settings.additionalPdfConfiguration,
     };
   }
 
-  @Patch()
+  @Patch('/policy')
   async update(
     @Body() updatedSettings: PatchSettingsDto,
     @UserDecorator() user: User,

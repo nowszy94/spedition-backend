@@ -1,8 +1,3 @@
-export type SettingsDto = {
-  speditionOrderPolicy: {
-    [key in 'payments' | 'contractor' | 'driver']: {
-      name: string;
-      text: Array<string>;
-    };
-  };
-};
+import { Settings } from '../entities/settings.entity';
+
+export type SettingsDto = Omit<Settings, 'companyId'>;

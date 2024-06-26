@@ -12,7 +12,7 @@ export class SettingsService {
   }
 
   async findAll(companyId: string) {
-    return await this.settingsRepository.findAll(companyId);
+    return await this.settingsRepository.findById(companyId);
   }
 
   async changePolicy(
