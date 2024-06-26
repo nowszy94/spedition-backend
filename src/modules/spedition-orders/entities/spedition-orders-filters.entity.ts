@@ -6,4 +6,7 @@ export type SpeditionOrdersFiltersEntity = {
   creator?: {
     id: string;
   };
+  contractor?: {
+    id: string;
+  }
 };

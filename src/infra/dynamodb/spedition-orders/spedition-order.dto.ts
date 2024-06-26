@@ -117,6 +117,18 @@ export class DynamoDBSpeditionOrderDto extends Item {
       };
     }
 
+    if (this.contractor) {
+      gsiKeys = {
+        ...gsiKeys,
+        GSI3PK: {
+          S: `Company#${this.companyId}/SpeditionOrderContractor#${this.contractor.id}`,
+        },
+        GSI3SK: {
+          S: `SpeditionOrder#${this.id}`,
+        },
+      };
+    }
+
     return gsiKeys;
   }
 

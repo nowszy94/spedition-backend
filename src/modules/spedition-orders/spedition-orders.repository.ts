@@ -14,6 +14,11 @@ export interface SpeditionOrdersRepository {
     creatorId: SpeditionOrdersFiltersEntity['creator']['id'],
   ) => Promise<Array<SpeditionOrder>>;
 
+  findAllByContractorId: (
+    companyId: string,
+    contractorId: SpeditionOrdersFiltersEntity['contractor']['id'],
+  ) => Promise<Array<SpeditionOrder>>;
+
   findById: (companyId: string, id: string) => Promise<SpeditionOrder>;
 
   create: (order: SpeditionOrder) => Promise<SpeditionOrder>;

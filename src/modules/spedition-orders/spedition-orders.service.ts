@@ -32,7 +32,7 @@ export class SpeditionOrdersService {
     companyId: string,
     filters: SpeditionOrdersFiltersEntity,
   ) {
-    const { orderMonthYear, creator } = filters;
+    const { orderMonthYear, creator, contractor } = filters;
     const promises: Array<Promise<Array<SpeditionOrder>>> = [];
 
     if (orderMonthYear) {
@@ -47,6 +47,11 @@ export class SpeditionOrdersService {
       promises.push(
         this.speditionOrderRepository.findAllByCreatorId(companyId, creator.id),
       );
+    }
+    if (contractor) {
+      promises.push(
+        this.speditionOrderRepository.findAllByContractorId(companyId, contractor.id),
+      )
     }
 
     this.logger.debug(

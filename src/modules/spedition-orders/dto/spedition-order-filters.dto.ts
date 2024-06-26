@@ -5,6 +5,7 @@ export type SpeditionOrderFilterRequestDto = {
   orderYear?: number;
   creatorId?: string;
   query?: string;
+  contractorId?: string
 };
 
 export const mapToSpeditionOrdersFilters = (
@@ -30,6 +31,15 @@ export const mapToSpeditionOrdersFilters = (
       },
     };
   }
+
+  // if (requestFilters.contractorId) {
+  //   filters = {
+  //     ...filters,
+  //     contractor: {
+  //       id: requestFilters.contractorId,
+  //     },
+  //   };
+  // }
 
   return filters;
 };
