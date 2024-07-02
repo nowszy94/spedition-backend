@@ -6,6 +6,7 @@ import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition
 import { SpeditionOrderFilesRepository } from './spedition-order-files.repository';
 import { S3SpeditionOrderFilesRepository } from '../../infra/s3/spedition-orders/s3-spedition-order-files.repository';
 import { SpeditionOrderFileEntity } from './entities/spedition-order-file.entity';
+import { SpeditionOrderNotFoundException } from './errors/SpeditionOrderNotFoundException';
 
 @Injectable()
 export class SpeditionOrderFilesService {
@@ -22,15 +23,9 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     files: Array<Express.Multer.File>,
   ) {
-    const speditionOrder = await this.speditionOrderRepository.findById(
-      companyId,
-      speditionOrderId,
-    );
-    if (!speditionOrder) {
-      return null;
-    }
+    await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
 
-    await this.speditionOrderFilesRepository.addFiles(
+    return this.speditionOrderFilesRepository.addFiles(
       companyId,
       speditionOrderId,
       files,
@@ -41,13 +36,7 @@ export class SpeditionOrderFilesService {
     companyId: string,
     speditionOrderId: string,
   ): Promise<Array<SpeditionOrderFileEntity>> {
-    const speditionOrder = await this.speditionOrderRepository.findById(
-      companyId,
-      speditionOrderId,
-    );
-    if (!speditionOrder) {
-      return null;
-    }
+    await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
 
     const result =
       await this.speditionOrderFilesRepository.listFilesBySpeditionOrderId(
@@ -68,13 +57,7 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ) {
-    const speditionOrder = await this.speditionOrderRepository.findById(
-      companyId,
-      speditionOrderId,
-    );
-    if (!speditionOrder) {
-      return null;
-    }
+    await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
 
     return this.speditionOrderFilesRepository.getFileByFilename(
       companyId,
@@ -88,13 +71,7 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ): Promise<string> {
-    const speditionOrder = await this.speditionOrderRepository.findById(
-      companyId,
-      speditionOrderId,
-    );
-    if (!speditionOrder) {
-      return null;
-    }
+    await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
 
     return this.speditionOrderFilesRepository.getFilePresignedUrlByFilename(
       companyId,
@@ -108,18 +85,26 @@ export class SpeditionOrderFilesService {
     speditionOrderId: string,
     filename: string,
   ) {
-    const speditionOrder = await this.speditionOrderRepository.findById(
-      companyId,
-      speditionOrderId,
-    );
-    if (!speditionOrder) {
-      return null;
-    }
+    await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
 
-    this.speditionOrderFilesRepository.removeFile(
+    return this.speditionOrderFilesRepository.removeFile(
       companyId,
       speditionOrderId,
       filename,
     );
+  }
+
+  private async findSpeditionOrderOrThrow(
+    companyId: string,
+    speditionOrderId: string,
+  ) {
+    const contractor = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
+    if (!contractor) {
+      throw new SpeditionOrderNotFoundException(speditionOrderId);
+    }
+    return contractor;
   }
 }

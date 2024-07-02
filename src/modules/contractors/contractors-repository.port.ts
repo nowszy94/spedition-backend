@@ -6,7 +6,7 @@ export interface ContractorsRepository {
   findContractorById(
     companyId: string,
     contractorId: string,
-  ): Promise<Contractor>;
+  ): Promise<Contractor | null>;
 
   createContractor(contractor: Contractor): Promise<Contractor>;
 

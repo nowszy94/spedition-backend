@@ -5,6 +5,7 @@ import { ContractorFilesRepository } from './contractor-files.repository';
 import { ContractorFileEntity } from './entities/contractor-file.entity';
 import { S3ContractorFilesRepository } from '../../infra/s3/spedition-orders/s3-contractor-files.repository';
 import { DynamoDBContractorsRepository } from '../../infra/dynamodb/contractors/contractors.repository';
+import { ContractorNotFoundException } from './errors/ContractorNotFoundException';
 
 @Injectable()
 export class ContractorFilesService {
@@ -21,13 +22,7 @@ export class ContractorFilesService {
     contractorId: string,
     files: Array<Express.Multer.File>,
   ) {
-    const contractor = await this.contractorRepository.findContractorById(
-      companyId,
-      contractorId,
-    );
-    if (!contractor) {
-      return null;
-    }
+    await this.findContractorOrThrow(companyId, contractorId);
 
     await this.contractorFilesRepository.addFiles(
       companyId,
@@ -40,13 +35,7 @@ export class ContractorFilesService {
     companyId: string,
     contractorId: string,
   ): Promise<Array<ContractorFileEntity>> {
-    const contractor = await this.contractorRepository.findContractorById(
-      companyId,
-      contractorId,
-    );
-    if (!contractor) {
-      return null;
-    }
+    await this.findContractorOrThrow(companyId, contractorId);
 
     const result = await this.contractorFilesRepository.listFilesByContractorId(
       companyId,
@@ -66,13 +55,7 @@ export class ContractorFilesService {
     contractorId: string,
     filename: string,
   ) {
-    const contractor = await this.contractorRepository.findContractorById(
-      companyId,
-      contractorId,
-    );
-    if (!contractor) {
-      return null;
-    }
+    await this.findContractorOrThrow(companyId, contractorId);
 
     return this.contractorFilesRepository.getFileByFilename(
       companyId,
@@ -86,13 +69,7 @@ export class ContractorFilesService {
     contractorId: string,
     filename: string,
   ): Promise<string> {
-    const contractor = await this.contractorRepository.findContractorById(
-      companyId,
-      contractorId,
-    );
-    if (!contractor) {
-      return null;
-    }
+    await this.findContractorOrThrow(companyId, contractorId);
 
     return this.contractorFilesRepository.getFilePresignedUrlByFilename(
       companyId,
@@ -119,5 +96,16 @@ export class ContractorFilesService {
       contractorId,
       filename,
     );
+  }
+
+  private async findContractorOrThrow(companyId: string, contractorId: string) {
+    const contractor = await this.contractorRepository.findContractorById(
+      companyId,
+      contractorId,
+    );
+    if (!contractor) {
+      throw new ContractorNotFoundException(contractorId);
+    }
+    return contractor;
   }
 }

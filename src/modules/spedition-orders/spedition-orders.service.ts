@@ -3,25 +3,30 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import { SpeditionOrder } from './entities/spedition-order.entity';
-import { ContractorsService } from '../contractors/contractors.service';
 import { SpeditionOrdersRepository } from './spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';
 import { User } from '../users/entities/user.entity';
 import { SpeditionOrdersFiltersEntity } from './entities/spedition-orders-filters.entity';
+import { SpeditionOrderNotFoundException } from './errors/SpeditionOrderNotFoundException';
+import { ContractorsRepository } from '../contractors/contractors-repository.port';
+import { DynamoDBContractorsRepository } from '../../infra/dynamodb/contractors/contractors.repository';
+import { ContractorForUpdateSpeditionOrderNotExist } from './errors/ContractorForUpdateSpeditionOrderNotExist';
+import { ContractorContactForUpdateSpeditionOrderNotExist } from './errors/ContractorContactForUpdateSpeditionOrderNotExist';
 
 @Injectable()
 export class SpeditionOrdersService {
   private readonly logger = new Logger(SpeditionOrdersService.name);
   private readonly speditionOrderRepository: SpeditionOrdersRepository;
+  private readonly contractorsRepository: ContractorsRepository;
 
   constructor(
-    private readonly contractorService: ContractorsService,
     private readonly speditionOrderStatusService: SpeditionOrderStatusService,
     private readonly newOrderIdService: NewOrderIdService,
   ) {
     this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
+    this.contractorsRepository = new DynamoDBContractorsRepository();
   }
 
   findAll(companyId: string) {
@@ -50,8 +55,11 @@ export class SpeditionOrdersService {
     }
     if (contractor) {
       promises.push(
-        this.speditionOrderRepository.findAllByContractorId(companyId, contractor.id),
-      )
+        this.speditionOrderRepository.findAllByContractorId(
+          companyId,
+          contractor.id,
+        ),
+      );
     }
 
     this.logger.debug(
@@ -160,8 +168,8 @@ export class SpeditionOrdersService {
     return newSpeditionOrder;
   }
 
-  async findOne(id: string, companyId: string) {
-    return await this.speditionOrderRepository.findById(companyId, id);
+  async findOne(speditionOrderId: string, companyId: string) {
+    return await this.findSpeditionOrderOrThrow(companyId, speditionOrderId);
   }
 
   async update(
@@ -169,23 +177,34 @@ export class SpeditionOrdersService {
     companyId: string,
     updateSpeditionOrderDto: UpdateSpeditionOrderDto,
   ): Promise<SpeditionOrder | null> {
-    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+    const foundSpeditionOrder = await this.findSpeditionOrderOrThrow(
       companyId,
       id,
     );
 
-    if (!foundSpeditionOrder) {
-      return null;
-    }
+    const contractor = updateSpeditionOrderDto.contractor
+      ? await this.contractorsRepository.findContractorById(
+          companyId,
+          updateSpeditionOrderDto.contractor.id,
+        )
+      : null;
 
-    const contractor = await this.contractorService.findOne(
-      companyId,
-      updateSpeditionOrderDto.contractor?.id,
-    );
+    if (updateSpeditionOrderDto.contractor && !contractor) {
+      throw new ContractorForUpdateSpeditionOrderNotExist(
+        updateSpeditionOrderDto.contractor.id,
+      );
+    }
 
     const selectedContact = contractor?.contacts.find(
       (contact) => contact.id === updateSpeditionOrderDto.contractor.contactId,
     );
+
+    if (updateSpeditionOrderDto.contractor.contactId && !selectedContact) {
+      throw new ContractorContactForUpdateSpeditionOrderNotExist(
+        updateSpeditionOrderDto.contractor.id,
+        updateSpeditionOrderDto.contractor.contactId,
+      );
+    }
 
     const updatedSpeditionOrder: SpeditionOrder = {
       id: foundSpeditionOrder.id,
@@ -223,14 +242,10 @@ export class SpeditionOrdersService {
     user: User,
     newStatus: SpeditionOrder['status'],
   ): Promise<SpeditionOrder | null> {
-    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+    const foundSpeditionOrder = await this.findSpeditionOrderOrThrow(
       user.companyId,
       id,
     );
-
-    if (!foundSpeditionOrder) {
-      return null;
-    }
 
     const updatedSpeditionOrder =
       await this.speditionOrderStatusService.handleStatusChange(
@@ -249,21 +264,17 @@ export class SpeditionOrdersService {
     companyId: string,
     newOrderId: SpeditionOrder['orderId'],
   ) {
-    const foundSpeditionOrder = await this.speditionOrderRepository.findById(
+    const foundSpeditionOrder = await this.findSpeditionOrderOrThrow(
       companyId,
       id,
     );
-
-    if (!foundSpeditionOrder) {
-      return null;
-    }
 
     const updatedSpeditionOrder = {
       ...foundSpeditionOrder,
       orderId: newOrderId,
     }; // TODO add validation if there's already order with such id
 
-    await this.speditionOrderRepository.update(updatedSpeditionOrder);
+    return await this.speditionOrderRepository.update(updatedSpeditionOrder);
   }
 
   async changeContractor(
@@ -285,7 +296,14 @@ export class SpeditionOrdersService {
 
     const contractor =
       newContractor &&
-      (await this.contractorService.findOne(companyId, newContractor.id));
+      (await this.contractorsRepository.findContractorById(
+        companyId,
+        newContractor.id,
+      ));
+
+    if (newContractor && !contractor) {
+      throw new ContractorForUpdateSpeditionOrderNotExist(newContractor.id);
+    }
 
     const foundContact =
       newContractor.contactId &&
@@ -293,6 +311,13 @@ export class SpeditionOrdersService {
       contractor.contacts.find(
         (contact) => contact.id === newContractor.contactId,
       );
+
+    if (newContractor.contactId && !foundContact) {
+      throw new ContractorContactForUpdateSpeditionOrderNotExist(
+        newContractor.id,
+        newContractor.contactId,
+      );
+    }
 
     const updatedSpeditionOrder = {
       ...foundSpeditionOrder,
@@ -319,13 +344,13 @@ export class SpeditionOrdersService {
     contractorId: string,
     contactId?: string,
   ): Promise<SpeditionOrder['contractor']> => {
-    const foundContractor = await this.contractorService.findOne(
+    const foundContractor = await this.contractorsRepository.findContractorById(
       companyId,
       contractorId,
     );
 
     if (!foundContractor) {
-      throw new Error(`Contractor for ${contractorId} not found `);
+      return null;
     }
 
     const foundContact = foundContractor.contacts.find(
@@ -333,8 +358,9 @@ export class SpeditionOrdersService {
     );
 
     if (contactId && !foundContact) {
-      throw new Error(
-        `Contact(id: ${contactId}) for contractor ${contractorId} not found`,
+      throw new ContractorContactForUpdateSpeditionOrderNotExist(
+        contractorId,
+        contactId,
       );
     }
 
@@ -353,4 +379,18 @@ export class SpeditionOrdersService {
       },
     };
   };
+
+  private async findSpeditionOrderOrThrow(
+    companyId: string,
+    speditionOrderId: string,
+  ) {
+    const contractor = await this.speditionOrderRepository.findById(
+      companyId,
+      speditionOrderId,
+    );
+    if (!contractor) {
+      throw new SpeditionOrderNotFoundException(speditionOrderId);
+    }
+    return contractor;
+  }
 }

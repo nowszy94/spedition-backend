@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ContractorsService } from './modules/contractors/contractors.service';
@@ -23,12 +24,15 @@ import { ContractorFilesService } from './modules/contractors/contractor-files.s
 import { RefreshSpeditionOrdersService } from './modules/spedition-orders/refresh-spedition-orders.service';
 import { SpeditionOrdersSearchService } from './modules/spedition-orders/spedition-orders-search.service';
 
+// import { RefreshSpeditionOrdersController } from './modules/spedition-orders/refresh-spedition-orders.controller';
+
 @Module({
   imports: [],
   controllers: [
     AppController,
     ContractorsController,
     ContractorFilesController,
+    // RefreshSpeditionOrdersController,
     SpeditionOrdersFeedController,
     SpeditionOrderFilesController,
     SpeditionOrdersController,
