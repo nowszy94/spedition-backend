@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { SpeditionOrdersRepository } from './spedition-orders.repository';
-import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { User } from '../users/entities/user.entity';
+import { SpeditionOrderIdRepository } from './ports/spedition-order-id.repository';
+import { DynamoDBSpeditionOrderIdRepository } from '../../infra/dynamodb/spedition-order-id/spedition-order-id.repository';
 
 @Injectable()
 export class NewOrderIdService {
-  private readonly speditionOrderRepository: SpeditionOrdersRepository;
+  private readonly speditionOrderIdRepository: SpeditionOrderIdRepository;
 
   constructor() {
-    this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
+    this.speditionOrderIdRepository = new DynamoDBSpeditionOrderIdRepository();
   }
 
   async createNewOrderId(user: User, forDate: Date): Promise<string> {
@@ -18,18 +18,11 @@ export class NewOrderIdService {
     const forYear = forDate.getFullYear();
     const forMonth = forDate.getMonth();
 
-    const orders = (
-      await this.speditionOrderRepository.findAll(companyId)
-    ).filter(({ status }) => status !== 'DRAFT');
-
-    const ordersInRequestedMonth = orders.filter(({ unloading }) => {
-      const orderUnloadingMonth = new Date(unloading.date).getMonth();
-      const orderUnloadingYear = new Date(unloading.date).getFullYear();
-
-      return orderUnloadingYear === forYear && orderUnloadingMonth === forMonth;
-    });
-
-    const nextOrderId = ordersInRequestedMonth.length + 1;
+    const nextOrderId =
+      await this.speditionOrderIdRepository.getNextOrderIdForDate(
+        companyId,
+        forDate,
+      );
 
     const normalizedMonthNumber = forMonth + 1;
     const preparedMonth =

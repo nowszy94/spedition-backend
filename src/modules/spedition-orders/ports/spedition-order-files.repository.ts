@@ -1,4 +1,4 @@
-import { SpeditionOrderFileEntity } from './entities/spedition-order-file.entity';
+import { SpeditionOrderFileEntity } from '../entities/spedition-order-file.entity';
 
 export interface SpeditionOrderFilesRepository {
   listFilesBySpeditionOrderId(

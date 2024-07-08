@@ -8,7 +8,7 @@ import {
 
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { SpeditionOrderFilesRepository } from '../../../modules/spedition-orders/spedition-order-files.repository';
+import { SpeditionOrderFilesRepository } from '../../../modules/spedition-orders/ports/spedition-order-files.repository';
 import { SpeditionOrderFileEntity } from '../../../modules/spedition-orders/entities/spedition-order-file.entity';
 
 const BUCKET_NAME =

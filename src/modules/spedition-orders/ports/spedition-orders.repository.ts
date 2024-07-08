@@ -1,5 +1,5 @@
-import { SpeditionOrder } from './entities/spedition-order.entity';
-import { SpeditionOrdersFiltersEntity } from './entities/spedition-orders-filters.entity';
+import { SpeditionOrder } from '../entities/spedition-order.entity';
+import { SpeditionOrdersFiltersEntity } from '../entities/spedition-orders-filters.entity';
 
 export interface SpeditionOrdersRepository {
   findAll: (companyId: string) => Promise<Array<SpeditionOrder>>;

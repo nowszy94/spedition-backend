@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateSpeditionOrderDto } from './dto/create-spedition-order.dto';
 import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import { SpeditionOrder } from './entities/spedition-order.entity';
-import { SpeditionOrdersRepository } from './spedition-orders.repository';
+import { SpeditionOrdersRepository } from './ports/spedition-orders.repository';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { NewOrderIdService } from './new-order-id.service';
 import { SpeditionOrderStatusService } from './spedition-order-status.service';

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Injectable } from '@nestjs/common';
 
-import { SpeditionOrdersRepository } from './spedition-orders.repository';
+import { SpeditionOrdersRepository } from './ports/spedition-orders.repository';
 import { SpeditionOrder } from './entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderRepository } from '../../infra/dynamodb/spedition-orders/dynamodb-spedition-order.repository';
 import { Moment } from 'moment';

@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 
-import { SpeditionOrdersRepository } from '../../../modules/spedition-orders/spedition-orders.repository';
+import { SpeditionOrdersRepository } from '../../../modules/spedition-orders/ports/spedition-orders.repository';
 import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderDto } from './spedition-order.dto';
 import { buildOrderMonthYear } from './build-order-month-year';
