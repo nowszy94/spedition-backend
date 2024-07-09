@@ -238,8 +238,8 @@ export class DynamoDBSpeditionOrderDto extends Item {
     contractor: this.contractor,
     driver: this.driver,
     vehicle: this.vehicle,
-    loading: this.loading[0],
-    unloading: this.unloading[0],
+    loading: this.loading,
+    unloading: this.unloading,
     loadDetails: this.loadDetails,
     freight: this.freight,
     status: this.status,
@@ -259,8 +259,8 @@ export class DynamoDBSpeditionOrderDto extends Item {
     dto.contractor = speditionOrder.contractor;
     dto.driver = speditionOrder.driver;
     dto.vehicle = speditionOrder.vehicle;
-    dto.loading = [speditionOrder.loading];
-    dto.unloading = [speditionOrder.unloading];
+    dto.loading = speditionOrder.loading;
+    dto.unloading = speditionOrder.unloading;
     dto.loadDetails = speditionOrder.loadDetails;
     dto.freight = speditionOrder.freight;
     dto.status = speditionOrder.status;

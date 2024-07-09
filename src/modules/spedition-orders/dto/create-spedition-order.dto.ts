@@ -18,22 +18,22 @@ export class CreateSpeditionOrderDto {
     carLicensePlate: string;
     trailerLicensePlate: string;
   };
-  loading: {
+  loading: Array<{
     date: number;
     endDate: number;
     time: string;
     address: string;
     loadingNumber: string;
     additionalInfo: string;
-  };
-  unloading: {
+  }>;
+  unloading: Array<{
     date: number;
     endDate: number;
     time: string;
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
-  };
+  }>;
   loadDetails: Array<{
     name: string;
     value: string;

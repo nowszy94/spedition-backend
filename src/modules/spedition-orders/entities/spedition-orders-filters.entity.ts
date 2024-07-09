@@ -8,5 +8,5 @@ export type SpeditionOrdersFiltersEntity = {
   };
   contractor?: {
     id: string;
-  }
+  };
 };

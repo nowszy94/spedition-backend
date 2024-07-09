@@ -149,7 +149,7 @@ export class SpeditionOrdersService {
 
     const newOrderId = await this.newOrderIdService.createNewOrderId(
       user,
-      new Date(createSpeditionOrderDto.unloading.date),
+      new Date(createSpeditionOrderDto.unloading[0].date),
     );
 
     const newSpeditionOrder = CreateSpeditionOrderDto.toNewEntity(

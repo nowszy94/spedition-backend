@@ -56,12 +56,16 @@ export class SpeditionOrdersFeedService {
         const { loading, unloading, status, loadingStage, unloadingStage } =
           order;
 
+        // TODO display all loadings and unloadings
+        const firstLoading = loading[0];
+        const firstUnloading = unloading[0];
+
         if (loadingStage) {
           const feedItem = this.buildFeedItem(
             order,
-            loading.address,
-            loading.date,
-            loading.endDate,
+            firstLoading.address,
+            firstLoading.date,
+            firstLoading.endDate,
             status === 'CREATED' ? 'toLoad' : 'loaded',
           );
 
@@ -71,9 +75,9 @@ export class SpeditionOrdersFeedService {
         if (unloadingStage) {
           const feedItem = this.buildFeedItem(
             order,
-            unloading.address,
-            unloading.date,
-            unloading.endDate,
+            firstUnloading.address,
+            firstUnloading.date,
+            firstUnloading.endDate,
             status === 'CREATED'
               ? 'toUnloadAndNotYetLoaded'
               : status === 'LOADED'
@@ -90,11 +94,14 @@ export class SpeditionOrdersFeedService {
   private enrichWithFeedStages = (order: SpeditionOrder) => {
     const { loading, unloading, status } = order;
 
-    const loadingDate = moment(loading.date);
-    const loadingEndDate = moment(loading.endDate);
+    const firstLoading = loading[0];
+    const firstUnloading = unloading[0];
 
-    const unloadingDate = moment(unloading.date);
-    const unloadingEndDate = moment(unloading.endDate);
+    const loadingDate = moment(firstLoading.date);
+    const loadingEndDate = moment(firstLoading.endDate);
+
+    const unloadingDate = moment(firstUnloading.date);
+    const unloadingEndDate = moment(firstUnloading.endDate);
 
     let loadingStage;
 
