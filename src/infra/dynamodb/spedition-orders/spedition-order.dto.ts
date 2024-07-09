@@ -275,12 +275,6 @@ export class DynamoDBSpeditionOrderDto extends Item {
   ): DynamoDBSpeditionOrderDto => {
     const dto = new DynamoDBSpeditionOrderDto();
 
-    const speditionOrderLoading = speditionOrderItem.loading.L[0].M;
-    const speditionOrderUnloading = speditionOrderItem.unloading.L[0].M;
-
-    const loadingDate = speditionOrderLoading.date.N;
-    const unloadingDate = speditionOrderUnloading.date.N;
-
     dto.id = speditionOrderItem.id.S;
     dto.orderId = speditionOrderItem.orderId.S;
     dto.creationDate = Number(speditionOrderItem.creationDate.N);
@@ -314,26 +308,22 @@ export class DynamoDBSpeditionOrderDto extends Item {
       carLicensePlate: speditionOrderItem.vehicle.M.carLicensePlate.S,
       trailerLicensePlate: speditionOrderItem.vehicle.M.trailerLicensePlate.S,
     };
-    dto.loading = [
-      {
-        date: Number(loadingDate),
-        endDate: Number(speditionOrderLoading.endDate?.N || loadingDate),
-        time: speditionOrderLoading.time?.S || '',
-        address: speditionOrderLoading.address.S,
-        loadingNumber: speditionOrderLoading.loadingNumber.S,
-        additionalInfo: speditionOrderLoading.additionalInfo.S,
-      },
-    ];
-    dto.unloading = [
-      {
-        date: Number(unloadingDate),
-        endDate: Number(speditionOrderUnloading.endDate?.N || unloadingDate),
-        time: speditionOrderUnloading.time?.S || '',
-        address: speditionOrderUnloading.address.S,
-        unloadingNumber: speditionOrderUnloading.unloadingNumber.S,
-        additionalInfo: speditionOrderUnloading.additionalInfo.S,
-      },
-    ];
+    dto.loading = speditionOrderItem.loading.L.map((loadingItem) => ({
+      date: Number(loadingItem.M.date.N),
+      endDate: Number(loadingItem.M.endDate.N),
+      time: loadingItem.M.time.S,
+      address: loadingItem.M.address.S,
+      loadingNumber: loadingItem.M.loadingNumber.S,
+      additionalInfo: loadingItem.M.additionalInfo.S,
+    }));
+    dto.unloading = speditionOrderItem.unloading.L.map((unloadingItem) => ({
+      date: Number(unloadingItem.M.date.N),
+      endDate: Number(unloadingItem.M.endDate.N),
+      time: unloadingItem.M.time.S,
+      address: unloadingItem.M.address.S,
+      unloadingNumber: unloadingItem.M.unloadingNumber.S,
+      additionalInfo: unloadingItem.M.additionalInfo.S,
+    }));
     dto.loadDetails = speditionOrderItem.loadDetails.L.map((item) => ({
       name: item.M.name.S,
       value: item.M.value.S,
