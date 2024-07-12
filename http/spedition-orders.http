@@ -121,3 +121,15 @@ Authorization: token
 ###
 GET localhost/settings
 Authorization: token
+
+### change status
+PATCH localhost/spedition-orders/01J2KAETPY7J7A6CP3HTFEA9AN
+Authorization: token
+Content-Type: application/json
+
+{
+  "unloadingCompleted": {
+    "index": 1,
+    "completed": false
+  }
+}

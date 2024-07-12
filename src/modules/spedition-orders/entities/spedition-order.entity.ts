@@ -47,6 +47,7 @@ export interface SpeditionOrder {
     address: string;
     loadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   unloading: Array<{
     date: number;
@@ -55,6 +56,7 @@ export interface SpeditionOrder {
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   loadDetails: Array<{
     name: string;

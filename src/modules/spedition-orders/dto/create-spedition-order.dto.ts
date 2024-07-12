@@ -25,6 +25,7 @@ export class CreateSpeditionOrderDto {
     address: string;
     loadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   unloading: Array<{
     date: number;
@@ -33,6 +34,7 @@ export class CreateSpeditionOrderDto {
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   loadDetails: Array<{
     name: string;

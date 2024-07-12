@@ -54,6 +54,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
     address: string;
     loadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   public unloading: Array<{
     date: number;
@@ -62,6 +63,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   public loadDetails: Array<{
     name: string;
@@ -192,6 +194,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
             address: { S: loadingItem.address },
             loadingNumber: { S: loadingItem.loadingNumber },
             additionalInfo: { S: loadingItem.additionalInfo },
+            completed: { BOOL: loadingItem.completed },
           },
         })),
       },
@@ -204,6 +207,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
             address: { S: unloadingItem.address },
             unloadingNumber: { S: unloadingItem.unloadingNumber },
             additionalInfo: { S: unloadingItem.additionalInfo },
+            completed: { BOOL: unloadingItem.completed },
           },
         })),
       },
@@ -315,6 +319,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
       address: loadingItem.M.address.S,
       loadingNumber: loadingItem.M.loadingNumber.S,
       additionalInfo: loadingItem.M.additionalInfo.S,
+      completed: loadingItem.M.completed?.BOOL || false, // TODO change after db update
     }));
     dto.unloading = speditionOrderItem.unloading.L.map((unloadingItem) => ({
       date: Number(unloadingItem.M.date.N),
@@ -323,6 +328,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
       address: unloadingItem.M.address.S,
       unloadingNumber: unloadingItem.M.unloadingNumber.S,
       additionalInfo: unloadingItem.M.additionalInfo.S,
+      completed: unloadingItem.M.completed?.BOOL || false, // TODO change after db update
     }));
     dto.loadDetails = speditionOrderItem.loadDetails.L.map((item) => ({
       name: item.M.name.S,

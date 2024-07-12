@@ -24,6 +24,7 @@ export type UpdateSpeditionOrderDto = {
     address: string;
     loadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   unloading: Array<{
     date: number;
@@ -32,6 +33,7 @@ export type UpdateSpeditionOrderDto = {
     address: string;
     unloadingNumber: string;
     additionalInfo: string;
+    completed: boolean;
   }>;
   loadDetails: Array<{
     name: string;

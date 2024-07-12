@@ -17,8 +17,10 @@ import { UpdateSpeditionOrderDto } from './dto/update-spedition-order.dto';
 import {
   PatchSpeditionOrderContractorDto,
   PatchSpeditionOrderDto,
+  PatchSpeditionOrderLoadingCompletedDto,
   PatchSpeditionOrderOrderIdDto,
   PatchSpeditionOrderStatusDto,
+  PatchSpeditionOrderUnloadingCompletedDto,
 } from './dto/patch-spedition-order.dto';
 import { UserDecorator } from '../../auth/cognito-user-email.decorator';
 import { User } from '../users/entities/user.entity';
@@ -154,6 +156,30 @@ export class SpeditionOrdersController {
       );
     }
 
+    if (this.isLoadingCompletedPatch(patchSpeditionOrderDto)) {
+      this.logger.debug(
+        `Called patch loading completed spedition-orders endpoint (id: ${id})`,
+      );
+
+      return this.speditionOrdersService.changeLoadingCompleted(
+        id,
+        user.companyId,
+        patchSpeditionOrderDto.loadingCompleted,
+      );
+    }
+
+    if (this.isUnloadingCompletedPatch(patchSpeditionOrderDto)) {
+      this.logger.debug(
+        `Called patch unloading completed spedition-orders endpoint (id: ${id})`,
+      );
+
+      return this.speditionOrdersService.changeUnloadingCompleted(
+        id,
+        user.companyId,
+        patchSpeditionOrderDto.unloadingCompleted,
+      );
+    }
+
     this.logger.debug(
       `[BUG from frontend] Called unknown patch spedition-orders endpoint (id: ${id})`,
     );
@@ -183,5 +209,17 @@ export class SpeditionOrdersController {
     dto: PatchSpeditionOrderDto,
   ): dto is PatchSpeditionOrderContractorDto => {
     return 'contractor' in dto;
+  };
+
+  private isLoadingCompletedPatch = (
+    dto: PatchSpeditionOrderDto,
+  ): dto is PatchSpeditionOrderLoadingCompletedDto => {
+    return 'loadingCompleted' in dto;
+  };
+
+  private isUnloadingCompletedPatch = (
+    dto: PatchSpeditionOrderDto,
+  ): dto is PatchSpeditionOrderUnloadingCompletedDto => {
+    return 'unloadingCompleted' in dto;
   };
 }

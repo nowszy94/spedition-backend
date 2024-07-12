@@ -335,6 +335,64 @@ export class SpeditionOrdersService {
     await this.speditionOrderRepository.update(updatedSpeditionOrder);
   }
 
+  async changeLoadingCompleted(
+    id: string,
+    companyId: string,
+    loadingCompleted: {
+      index: number;
+      completed: boolean;
+    },
+  ) {
+    const foundSpeditionOrder = await this.findSpeditionOrderOrThrow(
+      companyId,
+      id,
+    );
+
+    const updatedSpeditionOrder = {
+      ...foundSpeditionOrder,
+      loading: foundSpeditionOrder.loading.map((loadingItem, index) => {
+        if (index === loadingCompleted.index) {
+          return {
+            ...loadingItem,
+            completed: loadingCompleted.completed,
+          };
+        }
+        return loadingItem;
+      }),
+    };
+
+    return await this.speditionOrderRepository.update(updatedSpeditionOrder);
+  }
+
+  async changeUnloadingCompleted(
+    id: string,
+    companyId: string,
+    unloadingCompleted: {
+      index: number;
+      completed: boolean;
+    },
+  ) {
+    const foundSpeditionOrder = await this.findSpeditionOrderOrThrow(
+      companyId,
+      id,
+    );
+
+    const updatedSpeditionOrder = {
+      ...foundSpeditionOrder,
+      unloading: foundSpeditionOrder.unloading.map((unloadingItem, index) => {
+        if (index === unloadingCompleted.index) {
+          return {
+            ...unloadingItem,
+            completed: unloadingCompleted.completed,
+          };
+        }
+        return unloadingItem;
+      }),
+    };
+
+    return await this.speditionOrderRepository.update(updatedSpeditionOrder);
+  }
+
   async remove(id: string, companyId: string) {
     await this.speditionOrderRepository.delete(companyId, id);
   }
