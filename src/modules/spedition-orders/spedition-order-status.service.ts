@@ -30,9 +30,28 @@ export class SpeditionOrderStatusService {
       };
     }
 
+    let loading = speditionOrder.loading;
+    let unloading = speditionOrder.unloading;
+
+    if (toStatus === 'LOADED') {
+      loading = loading.map((loadingItem) => ({
+        ...loadingItem,
+        completed: true,
+      }));
+    }
+
+    if (toStatus === 'UNLOADED') {
+      unloading = unloading.map((unloadingItem) => ({
+        ...unloadingItem,
+        completed: true,
+      }));
+    }
+
     // TODO add state machine
     return {
       ...speditionOrder,
+      loading,
+      unloading,
       status: toStatus,
     };
   }

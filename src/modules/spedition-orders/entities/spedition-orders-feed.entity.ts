@@ -13,9 +13,14 @@ export type SpeditionOrderFeedItem = {
     id: string;
     name: string;
   };
-  address: string;
   date: number;
   endDate: number;
+  elements: Array<{
+    address: string;
+    date: number;
+    endDate: number;
+    completed: boolean;
+  }>;
 };
 
 export type SpeditionOrderFeed = {

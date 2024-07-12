@@ -53,38 +53,40 @@ export class SpeditionOrdersFeedService {
       )
       .map((order) => this.enrichWithFeedStages(order))
       .reduce((acc, order) => {
-        const { loading, unloading, status, loadingStage, unloadingStage } =
-          order;
-
-        // TODO display all loadings and unloadings
-        const firstLoading = loading[0];
-        const firstUnloading = unloading[0];
+        const { status, loadingStage, unloadingStage } = order;
 
         if (loadingStage) {
-          const feedItem = this.buildFeedItem(
-            order,
-            firstLoading.address,
-            firstLoading.date,
-            firstLoading.endDate,
-            status === 'CREATED' ? 'toLoad' : 'loaded',
+          acc.loading[loadingStage].push(
+            this.buildFeedItem(
+              order,
+              order.loading.map(({ address, date, endDate, completed }) => ({
+                address,
+                date,
+                endDate,
+                completed,
+              })),
+              status === 'CREATED' ? 'toLoad' : 'loaded',
+            ),
           );
-
-          acc.loading[loadingStage].push(feedItem);
         }
 
         if (unloadingStage) {
-          const feedItem = this.buildFeedItem(
-            order,
-            firstUnloading.address,
-            firstUnloading.date,
-            firstUnloading.endDate,
-            status === 'CREATED'
-              ? 'toUnloadAndNotYetLoaded'
-              : status === 'LOADED'
-                ? 'toUnload'
-                : 'unloaded',
+          acc.unloading[unloadingStage].push(
+            this.buildFeedItem(
+              order,
+              order.unloading.map(({ address, date, endDate, completed }) => ({
+                address,
+                date,
+                endDate,
+                completed,
+              })),
+              status === 'CREATED'
+                ? 'toUnloadAndNotYetLoaded'
+                : status === 'LOADED'
+                  ? 'toUnload'
+                  : 'unloaded',
+            ),
           );
-          acc.unloading[unloadingStage].push(feedItem);
         }
 
         return acc;
@@ -132,22 +134,30 @@ export class SpeditionOrdersFeedService {
 
   private buildFeedItem = (
     speditionOrder: SpeditionOrder,
-    address: string,
-    date: number,
-    endDate: number,
+    items: SpeditionOrderFeedItem['elements'],
     status: CheckedStatus,
-  ): SpeditionOrderFeedItem => ({
-    id: speditionOrder.id,
-    type: status,
-    orderId: speditionOrder.orderId,
-    address,
-    contractor: speditionOrder.contractor && {
-      id: speditionOrder.contractor.id,
-      name: speditionOrder.contractor.name,
-    },
-    date,
-    endDate,
-  });
+  ): SpeditionOrderFeedItem => {
+    const firstDateFrom = [...items].sort((a, b) => a.date - b.date)[0];
+    const lastDateTo = [...items].sort((a, b) => b.endDate - a.endDate)[0];
+
+    return {
+      id: speditionOrder.id,
+      type: status,
+      orderId: speditionOrder.orderId,
+      contractor: speditionOrder.contractor && {
+        id: speditionOrder.contractor.id,
+        name: speditionOrder.contractor.name,
+      },
+      date: firstDateFrom.date,
+      endDate: lastDateTo.endDate,
+      elements: items.map(({ address, date, endDate, completed }) => ({
+        address,
+        date,
+        endDate,
+        completed,
+      })),
+    };
+  };
 
   private isForToday = (date: moment.Moment, endDate: moment.Moment) =>
     this.today.isBetween(date, endDate, 'day', '[]');
