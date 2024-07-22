@@ -319,7 +319,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
       address: loadingItem.M.address.S,
       loadingNumber: loadingItem.M.loadingNumber.S,
       additionalInfo: loadingItem.M.additionalInfo.S,
-      completed: loadingItem.M.completed?.BOOL || false, // TODO change after db update
+      completed: loadingItem.M.completed.BOOL,
     }));
     dto.unloading = speditionOrderItem.unloading.L.map((unloadingItem) => ({
       date: Number(unloadingItem.M.date.N),
@@ -328,7 +328,7 @@ export class DynamoDBSpeditionOrderDto extends Item {
       address: unloadingItem.M.address.S,
       unloadingNumber: unloadingItem.M.unloadingNumber.S,
       additionalInfo: unloadingItem.M.additionalInfo.S,
-      completed: unloadingItem.M.completed?.BOOL || false, // TODO change after db update
+      completed: unloadingItem.M.completed.BOOL,
     }));
     dto.loadDetails = speditionOrderItem.loadDetails.L.map((item) => ({
       name: item.M.name.S,

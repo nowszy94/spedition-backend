@@ -12,6 +12,14 @@ export type SpeditionOrderFeedItem = {
   contractor?: {
     id: string;
     name: string;
+    nip: string;
+    phoneNumber: string;
+    email: string;
+    contact?: {
+      name: string;
+      email: string;
+      phoneNumber: string;
+    };
   };
   date: number;
   endDate: number;

@@ -140,13 +140,23 @@ export class SpeditionOrdersFeedService {
     const firstDateFrom = [...items].sort((a, b) => a.date - b.date)[0];
     const lastDateTo = [...items].sort((a, b) => b.endDate - a.endDate)[0];
 
+    const { contractor } = speditionOrder;
+
     return {
       id: speditionOrder.id,
       type: status,
       orderId: speditionOrder.orderId,
-      contractor: speditionOrder.contractor && {
-        id: speditionOrder.contractor.id,
-        name: speditionOrder.contractor.name,
+      contractor: contractor && {
+        id: contractor.id,
+        name: contractor.name,
+        nip: contractor.nip,
+        email: contractor.email,
+        phoneNumber: contractor.phoneNumber,
+        contact: contractor.contact && {
+          name: contractor.contact.name,
+          email: contractor.contact.email,
+          phoneNumber: contractor.contact.phoneNumber,
+        },
       },
       date: firstDateFrom.date,
       endDate: lastDateTo.endDate,

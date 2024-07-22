@@ -14,12 +14,16 @@ import { ContractorsRepository } from '../contractors/contractors-repository.por
 import { DynamoDBContractorsRepository } from '../../infra/dynamodb/contractors/contractors.repository';
 import { ContractorForUpdateSpeditionOrderNotExist } from './errors/ContractorForUpdateSpeditionOrderNotExist';
 import { ContractorContactForUpdateSpeditionOrderNotExist } from './errors/ContractorContactForUpdateSpeditionOrderNotExist';
+import { UsersRepository } from '../users/users-repository.port';
+import { DynamoDBUsersRepository } from '../../infra/dynamodb/users/user.repository';
+import { CreatorNotFoundException } from './errors/CreatorNotFoundException';
 
 @Injectable()
 export class SpeditionOrdersService {
   private readonly logger = new Logger(SpeditionOrdersService.name);
   private readonly speditionOrderRepository: SpeditionOrdersRepository;
   private readonly contractorsRepository: ContractorsRepository;
+  private readonly usersRepository: UsersRepository;
 
   constructor(
     private readonly speditionOrderStatusService: SpeditionOrderStatusService,
@@ -27,6 +31,7 @@ export class SpeditionOrdersService {
   ) {
     this.speditionOrderRepository = new DynamoDBSpeditionOrderRepository();
     this.contractorsRepository = new DynamoDBContractorsRepository();
+    this.usersRepository = new DynamoDBUsersRepository();
   }
 
   findAll(companyId: string) {
@@ -206,13 +211,31 @@ export class SpeditionOrdersService {
       );
     }
 
+    let creator = foundSpeditionOrder.creator;
+
+    if (updateSpeditionOrderDto.creator.id !== foundSpeditionOrder.creator.id) {
+      const fetchedUser = await this.usersRepository.findUserBySub(
+        updateSpeditionOrderDto.creator.id,
+      );
+
+      // TODO i should have separate index for this wi have both userId and companyId in query
+      if (!fetchedUser || fetchedUser.companyId !== companyId) {
+        throw new CreatorNotFoundException(
+          companyId,
+          updateSpeditionOrderDto.creator.id,
+        );
+      }
+
+      creator = fetchedUser.toCreator();
+    }
+
     const updatedSpeditionOrder: SpeditionOrder = {
       id: foundSpeditionOrder.id,
       orderId: foundSpeditionOrder.orderId,
       companyId: foundSpeditionOrder.companyId,
       creationDate: foundSpeditionOrder.creationDate,
       status: foundSpeditionOrder.status,
-      creator: foundSpeditionOrder.creator,
+      creator,
       loading: updateSpeditionOrderDto.loading,
       unloading: updateSpeditionOrderDto.unloading,
       loadDetails: updateSpeditionOrderDto.loadDetails,

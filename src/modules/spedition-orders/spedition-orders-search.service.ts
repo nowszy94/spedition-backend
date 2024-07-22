@@ -49,8 +49,13 @@ export class SpeditionOrdersSearchService {
         if (fieldName.includes('.')) {
           const [key, attribute] = fieldName.split('.');
           const object = document[key];
+          if (!object) {
+            return '';
+          }
 
-          return object ? object[attribute] : '';
+          return Array.isArray(object)
+            ? object.map((item) => item[attribute]).join(' ')
+            : object[attribute];
         }
         return MiniSearch.getDefault('extractField');
       },
