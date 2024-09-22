@@ -38,6 +38,10 @@ export class SpeditionOrdersService {
     return this.speditionOrderRepository.findAll(companyId);
   }
 
+  findAllWithLimit(companyId: string, limit: number) {
+    return this.speditionOrderRepository.findAllWithLimit(companyId, limit);
+  }
+
   async findAllByFilters(
     companyId: string,
     filters: SpeditionOrdersFiltersEntity,

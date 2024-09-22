@@ -31,6 +31,8 @@ import {
 import { SpeditionOrder } from './entities/spedition-order.entity';
 import { SpeditionOrdersSearchService } from './spedition-orders-search.service';
 
+const DEFAULT_SPEDITION_ORDERS_LIMIT = 150;
+
 @Controller('spedition-orders')
 export class SpeditionOrdersController {
   private readonly logger = new Logger(SpeditionOrdersController.name);
@@ -48,6 +50,13 @@ export class SpeditionOrdersController {
     this.logger.debug('Called findAll spedition-orders endpoint');
     const filters = mapToSpeditionOrdersFilters(filtersDto);
     const query = filtersDto.query;
+
+    if (!query && !filters) {
+      return await this.speditionOrdersService.findAllWithLimit(
+        user.companyId,
+        DEFAULT_SPEDITION_ORDERS_LIMIT,
+      );
+    }
 
     let speditionOrders: Array<SpeditionOrder> = [];
 

@@ -36,6 +36,27 @@ export class DynamoDBSpeditionOrderRepository
     );
   };
 
+  findAllWithLimit = async (
+    companyId: string,
+    limit: number,
+  ): Promise<Array<SpeditionOrder>> => {
+    const response = await this.dynamoDB
+      .query({
+        TableName: this.tableName,
+        KeyConditionExpression: 'PK = :pk',
+        ExpressionAttributeValues: {
+          ':pk': { S: `Company#${companyId}/SpeditionOrder` },
+        },
+        ScanIndexForward: false,
+        Limit: limit,
+      })
+      .promise();
+
+    return response.Items.map((item) =>
+      DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
+    );
+  };
+
   findById = async (
     companyId: string,
     speditionOrderId: string,

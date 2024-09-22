@@ -4,6 +4,11 @@ import { SpeditionOrdersFiltersEntity } from '../entities/spedition-orders-filte
 export interface SpeditionOrdersRepository {
   findAll: (companyId: string) => Promise<Array<SpeditionOrder>>;
 
+  findAllWithLimit: (
+    companyId: string,
+    limit?: number,
+  ) => Promise<Array<SpeditionOrder>>;
+
   findAllByMonthYear: (
     companyId: string,
     monthYearFilters: SpeditionOrdersFiltersEntity['orderMonthYear'],
