@@ -23,6 +23,8 @@ import { ContractorFilesController } from './modules/contractors/contractor-file
 import { ContractorFilesService } from './modules/contractors/contractor-files.service';
 import { RefreshSpeditionOrdersService } from './modules/spedition-orders/refresh-spedition-orders.service';
 import { SpeditionOrdersSearchService } from './modules/spedition-orders/spedition-orders-search.service';
+import { CompanyLogoService } from './modules/settings/company-logo.service';
+import { CompanyLogoController } from './modules/settings/company-logo.controller';
 
 // import { RefreshSpeditionOrdersController } from './modules/spedition-orders/refresh-spedition-orders.controller';
 
@@ -30,6 +32,7 @@ import { SpeditionOrdersSearchService } from './modules/spedition-orders/spediti
   imports: [],
   controllers: [
     AppController,
+    CompanyLogoController,
     ContractorsController,
     ContractorFilesController,
     // RefreshSpeditionOrdersController,
@@ -42,6 +45,7 @@ import { SpeditionOrdersSearchService } from './modules/spedition-orders/spediti
   ],
   providers: [
     AppService,
+    CompanyLogoService,
     ContractorsService,
     ContractorFilesService,
     DynamoDBSpeditionOrderRepository,

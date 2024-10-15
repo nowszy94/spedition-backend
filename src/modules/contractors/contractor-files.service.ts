@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ContractorsRepository } from './contractors-repository.port';
 import { ContractorFilesRepository } from './contractor-files.repository';
 import { ContractorFileEntity } from './entities/contractor-file.entity';
-import { S3ContractorFilesRepository } from '../../infra/s3/spedition-orders/s3-contractor-files.repository';
+import { S3ContractorFilesRepository } from '../../infra/s3/contractors/s3-contractor-files.repository';
 import { DynamoDBContractorsRepository } from '../../infra/dynamodb/contractors/contractors.repository';
 import { ContractorNotFoundException } from './errors/ContractorNotFoundException';
 

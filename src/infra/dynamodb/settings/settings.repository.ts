@@ -32,19 +32,50 @@ export class DynamoDBSettingsRepository implements SettingsRepository {
     };
   }
 
-  async updatePolicy(
+  async updateCompanyDetails(
     companyId: string,
-    updatedSettings: Settings['speditionOrderPolicy'],
+    companyDetails: Settings['companyDetails'],
   ): Promise<void> {
-    const settingsDto = DynamoDBPolicyDto.fromDomain(
+    const companyDetailsDto = DynamoDBCompanyDetailsDto.fromDomain(
       companyId,
-      updatedSettings,
+      companyDetails,
     );
 
     await this.dynamoDB
       .putItem({
         TableName: this.tableName,
-        Item: settingsDto.toItem(),
+        Item: companyDetailsDto.toItem(),
+      })
+      .promise();
+  }
+
+  async updateSpeditionOrderPdfConfig(
+    companyId: string,
+    speditionOrderPdfConfig: Settings['additionalPdfConfiguration'],
+  ): Promise<void> {
+    const speditionOrderPdfConfigDto = DynamoDBPdfConfigDto.fromDomain(
+      companyId,
+      speditionOrderPdfConfig,
+    );
+
+    await this.dynamoDB
+      .putItem({
+        TableName: this.tableName,
+        Item: speditionOrderPdfConfigDto.toItem(),
+      })
+      .promise();
+  }
+
+  async updatePolicy(
+    companyId: string,
+    updatedPolicy: Settings['speditionOrderPolicy'],
+  ): Promise<void> {
+    const policyDto = DynamoDBPolicyDto.fromDomain(companyId, updatedPolicy);
+
+    await this.dynamoDB
+      .putItem({
+        TableName: this.tableName,
+        Item: policyDto.toItem(),
       })
       .promise();
   }

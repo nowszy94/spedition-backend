@@ -1,8 +1,11 @@
 import { Body, Controller, Get, Logger, Patch } from '@nestjs/common';
+
 import { UserDecorator } from '../../auth/cognito-user-email.decorator';
 import { User } from '../users/entities/user.entity';
 import {
-  PatchPolicySettingsDto,
+  isCompanyDetailsPatch,
+  isPdfConfigPatch,
+  isPolicyPatch,
   PatchSettingsDto,
 } from './dto/patch-settings.dto';
 import { SettingsService } from './settings.service';
@@ -27,24 +30,32 @@ export class SettingsController {
     };
   }
 
-  @Patch('/policy')
+  @Patch()
   async update(
     @Body() updatedSettings: PatchSettingsDto,
     @UserDecorator() user: User,
   ) {
     this.logger.debug(`Called put settings endpoint`);
 
-    if (this.isPolicyPatch(updatedSettings)) {
+    if (isCompanyDetailsPatch(updatedSettings)) {
+      await this.settingsService.changeCompanyDetails(
+        user.companyId,
+        updatedSettings.companyDetails,
+      );
+    }
+
+    if (isPolicyPatch(updatedSettings)) {
       await this.settingsService.changePolicy(
         user.companyId,
         updatedSettings.speditionOrderPolicy,
       );
     }
-  }
 
-  private isPolicyPatch = (
-    dto: PatchSettingsDto,
-  ): dto is PatchPolicySettingsDto => {
-    return 'speditionOrderPolicy' in dto;
-  };
+    if (isPdfConfigPatch(updatedSettings)) {
+      await this.settingsService.changeSpeditionOrderPdfConfig(
+        user.companyId,
+        updatedSettings.additionalPdfConfiguration,
+      );
+    }
+  }
 }

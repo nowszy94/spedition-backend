@@ -44,7 +44,6 @@ export class DynamoDBPolicyDto extends Item {
     return DynamoDBPolicyDto.fromItem(response.Item).toDomain();
   }
 
-
   toItem(): Record<string, unknown> {
     return {
       ...this.keys(),
