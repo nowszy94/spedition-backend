@@ -7,12 +7,10 @@ export type Settings = {
     email: string;
     phoneNumber: string;
   };
-  speditionOrderPolicy: {
-    [key in 'payments' | 'contractor' | 'driver']: {
-      name: string;
-      text: Array<string>;
-    };
-  };
+  speditionOrderPolicy: Array<{
+    name: string;
+    value: string;
+  }>;
   additionalPdfConfiguration: {
     paymentAnnotation: string;
     paymentDaysAnnotation: string;

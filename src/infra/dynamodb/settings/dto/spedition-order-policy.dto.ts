@@ -5,12 +5,13 @@ import { Item } from '../../base';
 import { Settings } from '../../../../modules/settings/entities/settings.entity';
 import tableName from '../../table-name';
 
-export class DynamoDBPolicyDto extends Item {
+export class DynamoDBSpeditionOrderPolicyDto extends Item {
   constructor(
     public companyId: string,
-    public payments: string,
-    public contractor: string,
-    public driver: string,
+    public policies: Array<{
+      name: string;
+      value: string;
+    }>,
   ) {
     super();
   }
@@ -20,7 +21,7 @@ export class DynamoDBPolicyDto extends Item {
   }
 
   get sk(): string {
-    return `CompanyPolicy`;
+    return `SpeditionOrderPolicy`;
   }
 
   static async findByCompanyId(
@@ -32,7 +33,7 @@ export class DynamoDBPolicyDto extends Item {
         TableName: tableName,
         Key: {
           PK: { S: `Company#${companyId}/Settings` },
-          SK: { S: 'CompanyPolicy' },
+          SK: { S: 'SpeditionOrderPolicy' },
         },
       })
       .promise();
@@ -41,54 +42,44 @@ export class DynamoDBPolicyDto extends Item {
       return null;
     }
 
-    return DynamoDBPolicyDto.fromItem(response.Item).toDomain();
+    return DynamoDBSpeditionOrderPolicyDto.fromItem(response.Item).toDomain();
   }
 
   toItem(): Record<string, unknown> {
     return {
       ...this.keys(),
       companyId: { S: this.companyId },
-      payments: { S: this.payments },
-      contractor: { S: this.contractor },
-      driver: { S: this.driver },
+      policies: {
+        L: this.policies.map((policy) => ({
+          M: {
+            name: { S: policy.name },
+            value: { S: policy.value },
+          },
+        })),
+      },
     };
   }
 
-  static fromItem(policySettingsItem: AttributeMap): DynamoDBPolicyDto {
-    return new DynamoDBPolicyDto(
+  static fromItem(
+    policySettingsItem: AttributeMap,
+  ): DynamoDBSpeditionOrderPolicyDto {
+    return new DynamoDBSpeditionOrderPolicyDto(
       policySettingsItem.companyId.S,
-      policySettingsItem.payments.S,
-      policySettingsItem.contractor.S,
-      policySettingsItem.driver.S,
+      policySettingsItem.policies.L.map((policyItem) => ({
+        name: policyItem.M.name.S,
+        value: policyItem.M.value.S,
+      })),
     );
   }
 
   toDomain(): Settings['speditionOrderPolicy'] {
-    return {
-      payments: {
-        name: 'Płatności',
-        text: this.payments.split('\n'),
-      },
-      contractor: {
-        name: 'Przewoźnik',
-        text: this.contractor.split('\n'),
-      },
-      driver: {
-        name: 'Kierowca',
-        text: this.driver.split('\n'),
-      },
-    };
+    return this.policies;
   }
 
   static fromDomain(
     companyId: string,
     settings: Settings['speditionOrderPolicy'],
-  ): DynamoDBPolicyDto {
-    return new DynamoDBPolicyDto(
-      companyId,
-      settings.payments.text.join('\n'),
-      settings.contractor.text.join('\n'),
-      settings.driver.text.join('\n'),
-    );
+  ): DynamoDBSpeditionOrderPolicyDto {
+    return new DynamoDBSpeditionOrderPolicyDto(companyId, settings);
   }
 }
