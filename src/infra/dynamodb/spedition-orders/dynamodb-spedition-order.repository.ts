@@ -1,7 +1,11 @@
 import { DynamoDB } from 'aws-sdk';
+import { Logger } from '@nestjs/common';
 
 import { SpeditionOrdersRepository } from '../../../modules/spedition-orders/ports/spedition-orders.repository';
-import { SpeditionOrder } from '../../../modules/spedition-orders/entities/spedition-order.entity';
+import {
+  SpeditionOrder,
+  SpeditionOrderStatus,
+} from '../../../modules/spedition-orders/entities/spedition-order.entity';
 import { DynamoDBSpeditionOrderDto } from './spedition-order.dto';
 import { buildOrderMonthYear } from './build-order-month-year';
 
@@ -10,6 +14,7 @@ const DYNAMODB_TABLE_NAME = 'SpeditionInfrastructureStackDynamoTable';
 export class DynamoDBSpeditionOrderRepository
   implements SpeditionOrdersRepository
 {
+  private readonly logger = new Logger(DynamoDBSpeditionOrderRepository.name);
   private readonly dynamoDB: DynamoDB;
   private readonly tableName = process.env.databaseTable || DYNAMODB_TABLE_NAME;
 
@@ -30,6 +35,12 @@ export class DynamoDBSpeditionOrderRepository
         ScanIndexForward: false,
       })
       .promise();
+
+    if (response.LastEvaluatedKey) {
+      this.logger.warn(
+        `There are more speditionOrders left on next page, LastEvaluatedKey: ${JSON.stringify(response.LastEvaluatedKey)}`,
+      );
+    }
 
     return response.Items.map((item) =>
       DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
@@ -76,6 +87,29 @@ export class DynamoDBSpeditionOrderRepository
     }
 
     return DynamoDBSpeditionOrderDto.fromItem(response.Item).toDomain();
+  };
+
+  findAllByStatus = async (
+    companyId: string,
+    status: SpeditionOrderStatus,
+  ): Promise<Array<SpeditionOrder>> => {
+    const response = await this.dynamoDB
+      .query({
+        TableName: this.tableName,
+        IndexName: 'GSI4',
+        KeyConditionExpression: 'GSI4PK = :pk',
+        ExpressionAttributeValues: {
+          ':pk': {
+            S: `Company#${companyId}/SpeditionOrderStatus#${status}`,
+          },
+        },
+        ScanIndexForward: false,
+      })
+      .promise();
+
+    return response.Items.map((item) =>
+      DynamoDBSpeditionOrderDto.fromItem(item).toDomain(),
+    );
   };
 
   create = async (speditionOrder: SpeditionOrder): Promise<SpeditionOrder> => {

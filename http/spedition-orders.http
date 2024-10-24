@@ -130,6 +130,11 @@ Content-Type: application/json
   }
 }
 
+### backup
+GET localhost/spedition-orders-refresh
+Authorization: token
+
+
 ###
 POST localhost/spedition-orders-refresh
 Authorization: token

@@ -91,30 +91,18 @@ export class DynamoDBSpeditionOrderDto extends Item {
     return `SpeditionOrder#${this.id}`;
   }
 
-  // TODO - i don't know if its needed. Check it
-  private buildCombinedFiltersKeys = () => {
-    const unloadingDate = moment(this.unloading[0].date);
-    const orderMonth = buildOrderMonthYear(
-      unloadingDate.month() + 1,
-      unloadingDate.year(),
-    );
-
-    return {
-      GSI5PK: {
-        S: `Company#${this.companyId}/SpeditionOrderFilters`,
-      },
-      GSI5SK: {
-        S: `Creator#${this.creator.id}/OrderMonth#${orderMonth}/Contractor#${this.contractor?.id || 'none'}`,
-      },
-    };
-  };
-
   private gsiKeys(): Record<string, unknown> {
     let gsiKeys: Record<string, unknown> = {
       GSI1PK: {
         S: `Company#${this.companyId}/SpeditionOrderCreator#${this.creator.id}`,
       },
       GSI1SK: {
+        S: `SpeditionOrder#${this.id}`,
+      },
+      GSI4PK: {
+        S: `Company#${this.companyId}/SpeditionOrderStatus#${this.status}`,
+      },
+      GSI4SK: {
         S: `SpeditionOrder#${this.id}`,
       },
     };

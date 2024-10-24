@@ -6,6 +6,7 @@ import {
   GetUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
+
 import { UnauthenticatedException } from './exceptions/unauthenticated.exception';
 import { UsersService } from '../modules/users/users.service';
 

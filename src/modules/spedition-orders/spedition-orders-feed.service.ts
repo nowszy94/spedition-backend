@@ -29,7 +29,18 @@ export class SpeditionOrdersFeedService {
     this.today = moment();
     this.tomorrow = moment().add(1, 'day');
 
-    const allOrders = await this.speditionOrdersRepository.findAll(companyId);
+    const [ofStatusCreated, ofStatusLoaded, ofStatusUnloaded] =
+      await Promise.all([
+        this.speditionOrdersRepository.findAllByStatus(companyId, 'CREATED'),
+        this.speditionOrdersRepository.findAllByStatus(companyId, 'LOADED'),
+        this.speditionOrdersRepository.findAllByStatus(companyId, 'UNLOADED'),
+      ]);
+
+    const speditionOrders = [
+      ...ofStatusCreated,
+      ...ofStatusLoaded,
+      ...ofStatusUnloaded,
+    ];
 
     const initValue: SpeditionOrderFeedResponse = {
       loading: {
@@ -44,13 +55,7 @@ export class SpeditionOrdersFeedService {
       },
     };
 
-    return allOrders
-      .filter(
-        (order) =>
-          order.status !== 'DRAFT' &&
-          order.status !== 'DONE' &&
-          order.status !== 'STORNO',
-      )
+    return speditionOrders
       .map((order) => this.enrichWithFeedStages(order))
       .reduce((acc, order) => {
         const { status, loadingStage, unloadingStage } = order;

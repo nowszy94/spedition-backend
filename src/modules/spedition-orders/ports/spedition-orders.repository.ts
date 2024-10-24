@@ -1,4 +1,7 @@
-import { SpeditionOrder } from '../entities/spedition-order.entity';
+import {
+  SpeditionOrder,
+  SpeditionOrderStatus,
+} from '../entities/spedition-order.entity';
 import { SpeditionOrdersFiltersEntity } from '../entities/spedition-orders-filters.entity';
 
 export interface SpeditionOrdersRepository {
@@ -22,6 +25,11 @@ export interface SpeditionOrdersRepository {
   findAllByContractorId: (
     companyId: string,
     contractorId: SpeditionOrdersFiltersEntity['contractor']['id'],
+  ) => Promise<Array<SpeditionOrder>>;
+
+  findAllByStatus: (
+    companyId: string,
+    status: SpeditionOrderStatus,
   ) => Promise<Array<SpeditionOrder>>;
 
   findById: (companyId: string, id: string) => Promise<SpeditionOrder>;
